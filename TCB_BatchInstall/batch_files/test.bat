@@ -1,1 +1,0 @@
-@echo offrem Set the new computer nameset NEW_NAME="TCB-Desktop"set OLD_NAME=%computername%rem Change the computer namewmic computersystem where name="%OLD_NAME%" call rename name="%OLD_NAME%" newname="%NEW_NAME%"

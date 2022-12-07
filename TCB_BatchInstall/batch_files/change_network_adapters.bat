@@ -1,1 +1,0 @@
-netsh interface ip set address "Ethernet" static 192.168.10.11 255.255.254.0 192.168.10.1netsh interface ip set dns "Ethernet" static 1.1.1.1netsh interface ip add dns "Ethernet" 8.8.8.8 index=2
