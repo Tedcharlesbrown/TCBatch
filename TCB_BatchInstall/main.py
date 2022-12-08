@@ -5,6 +5,7 @@ import platform
 import subprocess
 import msvcrt
 import time
+import ipaddress
 
 
 
@@ -43,6 +44,16 @@ def get_network_adapters():
 	# Return the list of interfaces
 	return interfaces
 
+def default_subnet(ip_input: str):
+	octet_one = int(ip_input.split('.')[0])
+	if octet_one <= 127:
+		return "255.0.0.0"
+	elif octet_one >= 128 and octet_one <= 191:
+		return "255.255.0.0"
+	elif octet_one >= 192:
+		return "255.255.255.0"
+
+
 def parse_subnet(subnet_input: str):
 	subnet = ""
 	if subnet_input.lower() == "a":
@@ -57,6 +68,22 @@ def parse_subnet(subnet_input: str):
 		subnet = subnet_input
 	return subnet
 
+def parse_gateway(addresses: list):
+	ip = addresses[0].split('.')
+	gateway = addresses[2]
+	if len(gateway) <= 12:
+		if '.' not in gateway:
+			gateway = f"{ip[0]}.{ip[1]}.{ip[2]}.{gateway}"
+		else:
+			gateway = gateway.split('.')
+			if len(gateway) == 2:
+				gateway = f"{ip[0]}.{ip[1]}.{ip[2]}.{gateway[1].replace('.','')}"
+			elif len(gateway) == 3:
+				gateway = f"{ip[0]}.{ip[1]}.{gateway[1].replace('.','')}.{gateway[2].replace('.','')}"
+			elif len(gateway) == 4:
+				gateway = f"{ip[0]}.{gateway[1].replace('.','')}.{gateway[2].replace('.','')}.{gateway[3].replace('.','')}"
+	return gateway
+
 def parse_dns(dns_input:str,is_primary: bool):
 	dns = ""
 	if len(dns_input) == 0:
@@ -70,72 +97,38 @@ def parse_dns(dns_input:str,is_primary: bool):
 	return dns
 
 def change_network_adapters(interface: str, addresses: list):
-	temp_bat = PATH_BATCH_FOLDER + "/" + "change_network_adapters.bat"
-
-	# CREATE / OVERWRITE BAT FILE
-	open(temp_bat, 'w').close()
+	cmd = ""
 
 	if addresses[0].lower() == "dhcp":
-		with open(temp_bat, "a") as file:
-			file.write("netsh interface ip set address \"" + interface + "\" source=dhcp")
+		cmd = "netsh interface ip set address \"" + interface + "\" source=dhcp"
 
 	if len(addresses) == 1:
+		cmd = "netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + default_subnet(addresses[0])
 
-		print("NO SUBNET GIVEN, DEFAULTING TO 255.255.255.0")
-		with open(temp_bat, "a") as file:
-			file.write("netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " 255.255.255.0")
 	elif len(addresses) == 2:
-
-		with open(temp_bat, "a") as file:
-			file.write("netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + parse_subnet(addresses[1]))
+		cmd = "netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + parse_subnet(addresses[1])
 
 	elif len(addresses) == 3:
-
-		with open(temp_bat, "a") as file:
-			file.write("netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + parse_subnet(addresses[1]) + " " + addresses[2])
+		cmd = "netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + parse_subnet(addresses[1]) + " " + parse_gateway(addresses)
 
 	elif len(addresses) == 4:
-		with open(temp_bat, "a") as file:
-			file.write("netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + parse_subnet(addresses[1]) + " " + addresses[2])
-			file.write("\r")
-			file.write("netsh interface ip set dns \"" + interface + "\" static " + parse_dns(addresses[3],True))
+		cmd = "netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + parse_subnet(addresses[1]) + " " + parse_gateway(addresses)
+		cmd += "\r"
+		cmd += "netsh interface ip set dns \"" + interface + "\" static " + parse_dns(addresses[3],True)
 
 	elif len(addresses) == 5:
-		with open(temp_bat, "a") as file:
-			file.write("netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + parse_subnet(addresses[1]) + " " + addresses[2])
-			file.write("\r")
-			file.write("netsh interface ip set dns \"" + interface + "\" static " + parse_dns(addresses[3],True))
-			file.write("\r")
-			file.write("netsh interface ip add dns \"" + interface + "\" " + parse_dns(addresses[3],False) + " index=2")
+		cmd = "netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + parse_subnet(addresses[1]) + " " + parse_gateway(addresses)
+		cmd += "\r"
+		cmd += "netsh interface ip set dns \"" + interface + "\" static " + parse_dns(addresses[3],True)
+		cmd += "\r"
+		cmd += "netsh interface ip add dns \"" + interface + "\" " + parse_dns(addresses[3],False) + " index=2"
+
+	subprocess.call(["powershell.exe", cmd])
 	
-
-	
-
-	# with open(temp_bat, "a") as file:
-	# 	file.write("netsh interface ip set address \"" + interface + "\" static 192.168.0.11 255.255.255.0 192.168.1.1")
-		# file.write("netsh interface ipv4 set dns \"" + interface + "\" static " + addresses[3])
-		# file.write("netsh interface ipv4 add dns \"" + interface + "\" " + addresses[4] + " index=2")
-
-		# file.write("netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + addresses[1] + " " + addresses[2])
-		# file.write("netsh interface ipv4 set dns \"" + interface + "\" static " + addresses[3])
-		# file.write("netsh interface ipv4 add dns \"" + interface + "\" " + addresses[4] + " index=2")
 
 # COMPUTER NAME ------------------------------------------------------------------------------
 
 def change_computer_name(computer_name: str):
-	# temp_bat = PATH_BATCH_FOLDER + "/" + "change_computer_name.bat"
-
-	# # CREATE / OVERWRITE BAT FILE
-	# open(temp_bat, 'w').close()
-
-	# with open(temp_bat, "a") as file:
-	# 	file.write("@echo off\r")
-	# 	file.write("\r")
-	# 	file.write("rem Set the new computer name\r")
-	# 	file.write("set COMPUTER_NAME=" + "\"" + computer_name + "\"\r")
-	# 	file.write("\r")
-	# 	file.write("rem Change the computer name\r")
-	# 	file.write("wmic computersystem where name=" + "\"" "%computername%" "\"" +"call rename name=" + "\"" + "%COMPUTER_NAME%")
 
 	subprocess.call(['powershell.exe', "Rename-Computer -NewName " + computer_name])
 
@@ -205,26 +198,6 @@ def menu_change_computer_name():
 		print(DIVIDER)
 		time.sleep(1)
 		menu_main()
-
-
-def menu_change_adapter(adapter: int):
-	if adapter == "0":
-		print("EDITING IP ADDRESS:")
-		print(DIVIDER)
-	elif adapter == "1":
-		print("EDITING SUBNET:")
-		print(DIVIDER)
-	elif adapter == "2":
-		print("EDITING GATEWAY:")
-		print(DIVIDER)
-	elif adapter == "3":
-		print("EDITING DNS:")
-		print(DIVIDER)
-	else:
-		menu_change_network()
-
-	user_input = input()
-
 
 
 
