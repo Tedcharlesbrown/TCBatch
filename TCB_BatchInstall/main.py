@@ -6,11 +6,15 @@ import subprocess
 import msvcrt
 import time
 import ipaddress
+import pyuac
 
 
 APP_NAME = "TCB - Quick Setup"
 DIVIDER = "----------"
 PATH_BATCH_FOLDER = "batch_files"
+
+APPLICATION_INSTALL_LIST = []
+APPLICATION_FOLDER_PATH = 'applications/'
 
 SUBNET_LIST = ["0.0.0.0", "128.0.0.0", "192.0.0.0", "224.0.0.0", "240.0.0.0", "248.0.0.0", "252.0.0.0", "254.0.0.0", "255.0.0.0", "255.128.0.0", "255.192.0.0", "255.224.0.0", "255.240.0.0", "255.248.0.0", "255.252.0.0", "255.254.0.0", "255.255.0.0", "255.255.128.0",
 			   "255.255.192.0", "255.255.224.0", "255.255.240.0", "255.255.248.0", "255.255.252.0", "255.255.254.0", "255.255.255.0", "255.255.255.128", "255.255.255.192", "255.255.255.224", "255.255.255.240", "255.255.255.248", "255.255.255.252", "255.255.255.254", "255.255.255.255"]
@@ -20,6 +24,41 @@ SUBNET_MAP = {
 	"b": "255.255.0.0",
 	"c": "255.255.255.0",
 }
+# https://patorjk.com/software/taag/#p=display&h=0&v=0&f=Old%20Banner&t=TCBATCH
+APP_NAME = """
+
+  _____ ___ ___       _      _    
+ |_   _/ __| _ ) __ _| |_ __| |_  
+   | || (__| _ \/ _` |  _/ _| ' \ 
+   |_| \___|___/\__,_|\__\__|_||_|
+								  
+
+"""
+
+ASCII_COMPUTER_NAME = """
+
+   ___ _  _   _   _  _  ___ ___ _  _  ___    ___ ___  __  __ ___ _   _ _____ ___ ___   _  _   _   __  __ ___ 
+  / __| || | /_\ | \| |/ __|_ _| \| |/ __|  / __/ _ \|  \/  | _ \ | | |_   _| __| _ \ | \| | /_\ |  \/  | __|
+ | (__| __ |/ _ \| .` | (_ || || .` | (_ | | (_| (_) | |\/| |  _/ |_| | | | | _||   / | .` |/ _ \| |\/| | _| 
+  \___|_||_/_/ \_\_|\_|\___|___|_|\_|\___|  \___\___/|_|  |_|_|  \___/  |_| |___|_|_\ |_|\_/_/ \_\_|  |_|___|
+																											  
+
+"""
+
+ASCII_IP_ADDRESS = """
+   ___ _  _   _   _  _  ___ ___ _  _  ___   ___ ___     _   ___  ___  ___ ___ ___ ___ 
+  / __| || | /_\ | \| |/ __|_ _| \| |/ __| |_ _| _ \   /_\ |   \|   \| _ \ __/ __/ __|
+ | (__| __ |/ _ \| .` | (_ || || .` | (_ |  | ||  _/  / _ \| |) | |) |   / _|\__ \__ \\
+  \___|_||_/_/ \_\_|\_|\___|___|_|\_|\___| |___|_|   /_/ \_\___/|___/|_|_\___|___/___/                                                                            
+"""
+
+ASCII_SOFTWARE = """
+  ___ _  _ ___ _____ _   _    _    ___ _  _  ___   ___  ___  ___ _______      ___   ___ ___ 
+ |_ _| \| / __|_   _/_\ | |  | |  |_ _| \| |/ __| / __|/ _ \| __|_   _\ \    / /_\ | _ \ __|
+  | || .` \__ \ | |/ _ \| |__| |__ | || .` | (_ | \__ \ (_) | _|  | |  \ \/\/ / _ \|   / _| 
+ |___|_|\_|___/ |_/_/ \_\____|____|___|_|\_|\___| |___/\___/|_|   |_|   \_/\_/_/ \_\_|_\___|
+																							
+"""
 
 # NETWORK INTERFACES ------------------------------------------------------------------------------
 
@@ -68,6 +107,7 @@ def default_subnet(ip_input: str):
 	elif octet_one >= 192:
 		# return the subnet mask 255.255.255.0
 		return "255.255.255.0"
+
 
 def parse_subnet(subnet_input: str):
 
@@ -150,9 +190,9 @@ def change_network_adapters(interface: str, addresses: list):
 	cmd = ""
 
 	if addresses[0].lower() == "dhcp":
-		cmd = "netsh interface ip set address \"" + interface + "\" source=dhcp"
+		cmd = "netsh interface ip set address \"" + interface + "\" dhcp"
 
-	if len(addresses) == 1:
+	elif len(addresses) == 1:
 		cmd = "netsh interface ip set address \"" + interface + "\" static " + addresses[0] + " " + default_subnet(addresses[0])
 
 	elif len(addresses) == 2:
@@ -174,6 +214,7 @@ def change_network_adapters(interface: str, addresses: list):
 		cmd += "netsh interface ip add dns \"" + interface + "\" " + parse_dns(addresses[3], False) + " index=2"
 
 	subprocess.call(["powershell.exe", cmd])
+	menu_main()
 
 
 # COMPUTER NAME ------------------------------------------------------------------------------
@@ -185,21 +226,31 @@ def change_computer_name(computer_name: str):
 # APPLICATION INSTALL------------------------------------------------------------------------
 
 
-def application_init():
-	application_folder_path = 'applications'
-	if not os.path.exists(application_folder_path):
-		os.makedirs(application_folder_path)
-	else:
-		application_install_list = os.listdir(application_folder_path)
-		print(application_install_list)
-		# subprocess.run(["applications/"+application_install_list[0], ""])
-		# subprocess.run(["applications/"+application_install_list[1], ""])
+def folder_application_init():
+	if not os.path.exists(APPLICATION_FOLDER_PATH):
+		os.makedirs(APPLICATION_FOLDER_PATH)
+		print(DIVIDER)
+		print("APPLICATION INSTALL FOLDER NOT FOUND - CREATING ONE")
+		print(DIVIDER)
 
-
-# msiexec.exe /i "C:\Users\Rkdns\Desktop\TCB_BatchInstall\applications\SpotifySetup.exe"
-
+def install_applications(user_input: str, apps: list):
+	user_input = user_input.split(",")
+	for n in user_input:
+		if n.isdigit():
+			n = int(n)
+			if n <= len(apps):
+				subprocess.call([APPLICATION_FOLDER_PATH + apps[n]])
+				time.sleep(1)
+			else:
+				print("INPUT IS NOT VALID")
+		else:
+			print("INPUT IS NOT VALID")
+	menu_install_software(False)
 
 def menu_main():
+	print(APP_NAME)
+	print("Press number then 'ENTER' to make selection")
+	print(DIVIDER)
 	print("1: Change computer name")
 	print("2: Change IP Addresses")
 	print("3: Install Software")
@@ -212,16 +263,14 @@ def menu_main():
 	elif user_input == "2":
 		menu_change_network()
 	elif user_input == "3":
-		print("SOFTWARE INSTALL: NOT IMPLEMENTED YET")
-		print(DIVIDER)
-		menu_main()
+		menu_install_software(True)
 
 
 def menu_change_computer_name():
 	print(DIVIDER)
-	print("CHANGING COMPUTER NAME")
+	# print("CHANGING COMPUTER NAME")
+	print(ASCII_COMPUTER_NAME)
 	print(DIVIDER)
-	time.sleep(1)
 	print("TYPE NEW NAME AND PRESS 'ENTER', OR PRESS 'ENTER' TO CANCEL")
 	print("CURRENT COMPUTER NAME = " + "'" + platform.node() + "'")
 	print(DIVIDER)
@@ -236,16 +285,16 @@ def menu_change_computer_name():
 		print(DIVIDER)
 		print("CHANGING NAME TO: " + user_input)
 		change_computer_name(user_input)
-		time.sleep(1)
 		print("NAME WILL UPDATE ON RESTART")
 		print(DIVIDER)
-		time.sleep(1)
 		menu_main()
 
 
 def menu_change_network():
 	print(DIVIDER)
-	print("CHANGING IP ADDRESSES")
+	# print("CHANGING IP ADDRESSES")
+	print(ASCII_IP_ADDRESS)
+	print(DIVIDER)
 	print("TYPE THE NUMBER OF THE INTERFACE YOU WOULD LIKE TO CHANGE, OR PRESS 'ENTER' TO CANCEL")
 	network_adapters = get_network_adapters()
 	for i, interface in enumerate(network_adapters):
@@ -280,7 +329,47 @@ def menu_change_network():
 				change_network_adapters(selected_network_adapter, addresses)
 
 
-print(APP_NAME)
-print("Press number then 'ENTER' to make selection")
-print(DIVIDER)
-menu_main()
+def menu_install_software(ascii: bool):
+	application_install_list = os.listdir(APPLICATION_FOLDER_PATH)
+	if ascii:
+		print(ASCII_SOFTWARE)
+	print(DIVIDER)
+	if len(application_install_list) == 0:
+		print("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!")
+		time.sleep(1)
+		print(DIVIDER)
+		menu_main()
+	else:
+		print("TYPE THE NUMBER OF THE SOFTWARE YOU WOULD LIKE TO INSTAll, OR PRESS 'ENTER' TO CANCEL")
+		for i, app in enumerate(application_install_list):
+			print(str(i) + ": " + "\"" + app + "\"")
+		print(DIVIDER)
+
+		# print(APPLICATION_INSTALL_LIST)
+		user_input = input()
+		if user_input == "":
+			print("GOING BACK TO MAIN MENU")
+			print(DIVIDER)
+			menu_main()
+		else:
+			install_applications(user_input, application_install_list)
+
+# -------------------------------------------------------------------------------
+
+def main():
+	folder_application_init()
+	menu_main()
+# if isAdmin():
+
+# else:
+# 	print(DIVIDER)
+# 	print("PLEASE RE-RUN SCRIPT AS ADMIN!")
+# 	time.sleep(2)
+
+if __name__ == "__main__":
+	if not pyuac.isUserAdmin():
+		print("RE-LAUNCHING AS ADMIN!")
+		time.sleep(1)
+		pyuac.runAsAdmin()
+	else:        
+		main()  # Already an admin here.
