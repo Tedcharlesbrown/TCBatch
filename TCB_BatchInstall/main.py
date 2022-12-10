@@ -69,22 +69,6 @@ def default_subnet(ip_input: str):
 		# return the subnet mask 255.255.255.0
 		return "255.255.255.0"
 
-
-# def parse_subnet(subnet_input: str):
-#     subnet = ""
-#     if subnet_input.lower() == "a":
-#         subnet = "255.0.0.0"
-#     elif subnet_input.lower() == "b":
-#         subnet = "255.255.0.0"
-#     elif subnet_input.lower() == "c":
-#         subnet = "255.255.255.0"
-#     elif int(subnet_input) <= 33:
-#         subnet = SUBNET_LIST[int(subnet_input)]
-#     else:
-#         subnet = subnet_input
-#     return subnet
-
-
 def parse_subnet(subnet_input: str):
 
 	# convert the input to lowercase to make it case-insensitive
@@ -114,18 +98,38 @@ def parse_subnet(subnet_input: str):
 def parse_gateway(addresses: list):
 	# split the first address by the period character and store the resulting list
 	ip = addresses[0].split('.')
+
+	# store the third address as the gateway
 	gateway = addresses[2]
+
+	# if the length of the gateway address is less than or equal to 12
 	if len(gateway) <= 12:
+		# if the gateway address does not contain a period,
+		# build the gateway address using the first three octets of the first address
 		if '.' not in gateway:
 			gateway = f"{ip[0]}.{ip[1]}.{ip[2]}.{gateway}"
+
+		# if the gateway address contains one or more periods,
+		# split the gateway address by the period character and store the resulting list
 		else:
 			gateway = gateway.split('.')
+
+			# if the gateway address has two octets,
+			# build the gateway address using the first three octets of the first address and the second octet of the gateway address
 			if len(gateway) == 2:
 				gateway = f"{ip[0]}.{ip[1]}.{ip[2]}.{gateway[1].replace('.','')}"
+
+			# if the gateway address has three octets,
+			# build the gateway address using the first and second octets of the first address and the second and third octets of the gateway address
 			elif len(gateway) == 3:
 				gateway = f"{ip[0]}.{ip[1]}.{gateway[1].replace('.','')}.{gateway[2].replace('.','')}"
+
+			# if the gateway address has four octets,
+			# build the gateway address using the first octet of the first address and the second, third, and fourth octets of the gateway address
 			elif len(gateway) == 4:
 				gateway = f"{ip[0]}.{gateway[1].replace('.','')}.{gateway[2].replace('.','')}.{gateway[3].replace('.','')}"
+
+	# return the gateway address
 	return gateway
 
 
