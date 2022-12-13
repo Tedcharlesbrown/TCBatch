@@ -1,5 +1,6 @@
 
 output/
+applications/
 *.pyc
-TCB_BatchInstall/applications/companion-win64-2.4.0+4877-v2-4.0-cd0b68c6.exe
 *.exe
+*Startup_Symlink

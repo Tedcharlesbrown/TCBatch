@@ -10,22 +10,24 @@ import pyuac
 import winshell
 
 from constants import *
-from net import *
-from name import *
-from install import *
 from menu import *
 
-# -------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------- #
+
+def folder_application_init():
+	if not os.path.exists(APPLICATION_FOLDER_PATH):
+		os.makedirs(APPLICATION_FOLDER_PATH)
+		print(DIVIDER)
+		print("APPLICATION INSTALL FOLDER NOT FOUND - CREATING ONE")
+		print(DIVIDER)
+
+# ---------------------------------------------------------------------------- #
+#                                     MAIN                                     #
+# ---------------------------------------------------------------------------- #
 
 def main():
 	folder_application_init()
 	menu_main()
-# if isAdmin():
-
-# else:
-# 	print(DIVIDER)
-# 	print("PLEASE RE-RUN SCRIPT AS ADMIN!")
-# 	time.sleep(2)
 
 if __name__ == "__main__":
 	if not pyuac.isUserAdmin():
@@ -35,4 +37,3 @@ if __name__ == "__main__":
 	else:        
 		main()  # Already an admin here.
 
-		
