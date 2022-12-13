@@ -20,12 +20,6 @@ from menu import *
 def main():
 	folder_application_init()
 	menu_main()
-# if isAdmin():
-
-# else:
-# 	print(DIVIDER)
-# 	print("PLEASE RE-RUN SCRIPT AS ADMIN!")
-# 	time.sleep(2)
 
 if __name__ == "__main__":
 	if not pyuac.isUserAdmin():
