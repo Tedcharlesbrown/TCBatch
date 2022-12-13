@@ -1,5 +1,6 @@
 
 output/
+applications/
 *.pyc
 *.exe
-Startup_Symlink
+*Startup_Symlink
