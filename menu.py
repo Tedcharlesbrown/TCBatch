@@ -9,66 +9,19 @@ from main import *
 
 def menu_main():
 
-	# Menu_main = Menu("MAIN MENU", APP_NAME)
-	# Menu_name = Menu("Change Computer Name", ASCII_COMPUTER_NAME)
-	# Menu_ip = Menu("Change IP Addresses", ASCII_IP_ADDRESS)
-	# Menu_software = Menu("Install Software", ASCII_SOFTWARE)
+	m_main = MENU("MAIN MENU", APP_NAME)
+	m_name = MENU_name("Change Computer Name", ASCII_COMPUTER_NAME)
+	m_ip = MENU("Change IP Addresses", ASCII_IP_ADDRESS)
+	m_software = MENU("Install Software", ASCII_SOFTWARE)
 
-	# Menu_main.add_option(Menu_name)
-	# Menu_main.add_option(Menu_ip)
-	# Menu_main.add_option(Menu_software)
+	m_main.add_option(m_name)
+	m_main.add_option(m_ip)
+	m_main.add_option(m_software)
 
-	# # Menu_name.add_option()
+	# Menu_name.add_option()
 
-	# Menu_main.enter()
-	# # Menu_name.enter()
-
-	print(APP_NAME)
-	print("Press number then 'ENTER' to make selection")
-	print(DIVIDER)
-	print("1: Change computer name")
-	print("2: Change IP Addresses")
-	print("3: Install Software")
-	print("4: Create Startup Symlink")
-	print(DIVIDER)
-
-	user_input = input()
-
-	if user_input == "1":
-		menu_change_computer_name()
-	elif user_input == "2":
-		menu_change_network()
-	elif user_input == "3":
-		menu_install_software(True)
-	elif user_input == "4":
-		menu_set_startup()
-
-# ------------------------------------------------------------------------------
-# COMPUTER NAME
-# ------------------------------------------------------------------------------
-
-def menu_change_computer_name():
-	print(DIVIDER)
-	# print("CHANGING COMPUTER NAME")
-	print(ASCII_COMPUTER_NAME)
-	print(DIVIDER)
-	print("TYPE NEW NAME AND PRESS 'ENTER', OR PRESS 'ENTER' TO CANCEL")
-	print("CURRENT COMPUTER NAME = " + "'" + platform.node() + "'")
-	print(DIVIDER)
-
-	user_input = input()
-
-	if user_input == "":
-		print("GOING BACK TO MAIN MENU")
-		print(DIVIDER)
-		menu_main()
-	else:
-		print(DIVIDER)
-		print("CHANGING NAME TO: " + user_input)
-		change_computer_name(user_input)
-		print("NAME WILL UPDATE ON RESTART")
-		print(DIVIDER)
-		menu_main()
+	m_main.enter()
+	# Menu_name.enter()
 
 # ------------------------------------------------------------------------
 # APPLICATION INSTALL
@@ -161,32 +114,60 @@ def menu_set_startup():
 # # CLASS
 # # ------------------------------------------------------------------------------
 
-# class Menu:
-# 	# options_list = []
-# 	def __init__(self, name: str, greeting: str):
-# 		self.name = name
-# 		self.greeting = greeting
-# 		self.options_list = []
+class MENU():
+	# options_list = []
+	def __init__(self, name: str, greeting: str):
+		self.name = name
+		self.greeting = greeting
+		self.options_list = []
 
-# 	def __str__(self):
-# 		return self.name
+	def __str__(self):
+		return self.name
 
-# 	def add_option(self, name: 'Menu'):
-# 		self.options_list.append(name)
+	def add_option(self, name: 'Menu'):
+		self.options_list.append(name)
 
-# 	def enter(self):
-# 		print(self.greeting)
-# 		print(DIVIDER)
+	def enter(self):
+		print(self.greeting)
+		print(DIVIDER)	
+		self.list_options()
 
-# 		for i, option in enumerate(self.options_list):
-# 			i += 1
-# 			print(f"{int(i)}: {option}")
-# 		print(DIVIDER)
+	def list_options(self):
+		for i, option in enumerate(self.options_list):
+			i += 1
+			print(f"{int(i)}: {option}")
+		print(DIVIDER)
+		self.wait_for_input()
 
-# 		user_input = input()
+	def wait_for_input(self):
+		user_input = input()
 
-# 		if user_input == "":
-# 			pass
-# 		else:
-# 			user_input = int(user_input) - 1
-# 			self.options_list[user_input].enter()
+		if user_input == "":
+			pass
+		else:
+			user_input = int(user_input) - 1
+			self.options_list[user_input].enter()
+
+class MENU_name(MENU):
+	pass
+	# print(DIVIDER)
+	# # print("CHANGING COMPUTER NAME")
+	# print(ASCII_COMPUTER_NAME)
+	# print(DIVIDER)
+	# print("TYPE NEW NAME AND PRESS 'ENTER', OR PRESS 'ENTER' TO CANCEL")
+	# print("CURRENT COMPUTER NAME = " + "'" + platform.node() + "'")
+	# print(DIVIDER)
+
+	# user_input = input()
+
+	# if user_input == "":
+	# 	print("GOING BACK TO MAIN MENU")
+	# 	print(DIVIDER)
+	# 	menu_main()
+	# else:
+	# 	print(DIVIDER)
+	# 	print("CHANGING NAME TO: " + user_input)
+	# 	change_computer_name(user_input)
+	# 	print("NAME WILL UPDATE ON RESTART")
+	# 	print(DIVIDER)
+	# 	menu_main()
