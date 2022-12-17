@@ -8,7 +8,7 @@ from main import *
 # ---------------------------------------------------------------------------- #
 
 def menu_main():
-
+	
 	m_main = MENU("MAIN MENU", APP_NAME)
 	m_name = MENU_name("Change Computer Name", ASCII_COMPUTER_NAME)
 	m_ip = MENU_ip("Change IP Addresses", ASCII_IP_ADDRESS)
@@ -317,17 +317,25 @@ class MENU_software(MENU):
 
 	def install_applications(self, user_input: str, apps: list):
 		user_input = user_input.split(",")
-		for n in user_input:
+		# print(user_input)
+		for i, n in enumerate(user_input):
 			if n.isdigit():
 				n = int(n)
 				if n <= len(apps):
+					print(f"INSTALLING: {apps[n]}")
 					subprocess.call([APPLICATION_FOLDER_PATH + apps[n]])
-					time.sleep(1)
+					# time.sleep(1)
+					if i < len(user_input):
+						print("INSTALL COMPLETE")
+						time.sleep(0.5)
+					else:
+						print("INSTALL COMPLETE, GOING BACK TO MAIN MENU")
+						time.sleep(2)
 				else:
 					print("INPUT IS NOT VALID")
 			else:
 				print("INPUT IS NOT VALID")
-		menu_install_software(False)
+		menu_main()
 
 # ---------------------------------------------------------------------------- #
 #                            STARTUP FOLDER SYMLINK                            #
