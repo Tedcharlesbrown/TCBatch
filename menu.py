@@ -12,11 +12,13 @@ def menu_main():
 	m_main = MENU("MAIN MENU", APP_NAME)
 	m_name = MENU_name("Change Computer Name", ASCII_COMPUTER_NAME)
 	m_ip = MENU_ip("Change IP Addresses", ASCII_IP_ADDRESS)
+	m_download = MENU_download("Download Software", ASCII_DOWNLOAD)
 	m_software = MENU_software("Install Software", ASCII_SOFTWARE)
 	m_symlink = MENU_symlink("Create Symlink Folder", ASCII_SYMLINK)
 
 	m_main.add_option(m_name)
 	m_main.add_option(m_ip)
+	m_main.add_option(m_download)
 	m_main.add_option(m_software)
 	m_main.add_option(m_symlink)
 
@@ -59,6 +61,19 @@ class MENU():
 		else:
 			user_input = int(user_input) - 1
 			self.options_list[user_input].enter()
+
+# ---------------------------------------------------------------------------- #
+#                                   DOWNLOAD                                   #
+# ---------------------------------------------------------------------------- #
+
+class MENU_download(MENU):
+	def enter(self):
+		print(self.greeting)
+		print(DIVIDER)
+		for app in APPLICATION_DOWNLOAD_LIST:
+			self.list_options.append(app)
+			print(app.name)	
+		# self.list_options()
 
 # ---------------------------------------------------------------------------- #
 #                               VERSION DOWNLOAD                               #
@@ -380,3 +395,4 @@ class MENU_symlink(MENU):
 			time.sleep(1)
 			
 		menu_main()
+		
