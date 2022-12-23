@@ -1,44 +1,44 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+from dataclasses import dataclass
 
-download = {
-    "free_file_sync": ["https://freefilesync.org/download.php","https://www.dropbox.com/s/kr0b297r12hmx86/sublime_text_build_4143_x64_setup.exe?dl=1"],
+@dataclass
+class APPLICATION:
+    name: str
+    main_link: str
+    backup_link: str
 
-    "midi_ox": ["http://www.midiox.com/zip/midioxse.exe","https://www.dropbox.com/s/uzehscuf3t0c4p7/midioxse.exe?dl=1"]
-}
+free_file_sync = APPLICATION("FreeFileSync.exe","https://freefilesync.org/download.php","https://www.dropbox.com/s/kr0b297r12hmx86/sublime_text_build_4143_x64_setup.exe?dl=1")
+parsec = APPLICATION("Parsec.exe","https://builds.parsec.app/package/parsec-windows.exe","https://www.dropbox.com/s/c3h4shey57r12mm/parsec-windows.exe?dl=1")
+midi_ox = APPLICATION("Midi_Ox.exe","http://www.midiox.com/zip/midioxse.exe","https://www.dropbox.com/s/uzehscuf3t0c4p7/midioxse.exe?dl=1")
+myffmpeg = APPLICATION("myFFmpeg.exe","https://www.myffmpeg.com/download.html","https://www.dropbox.com/s/6lmhr9rkp56xeun/myFFmpegsetup64bit.exe?dl=1")
+netsetman = APPLICATION("NetSetMan.exe","https://www.netsetman.com/en/freeware","https://www.dropbox.com/s/hahad51rp8358uh/netsetman_setup_511.exe?dl=1")
+rufus = APPLICATION("Rufus.exe","https://rufus.ie/en/","https://www.dropbox.com/s/eyi4hssbxq6qawn/rufus-3.21.exe?dl=1")
+sublime = APPLICATION("Sublime.exe","https://www.sublimetext.com/","https://www.dropbox.com/s/kr0b297r12hmx86/sublime_text_build_4143_x64_setup.exe?dl=1")
+tailscale = APPLICATION("Tailscale.exe","https://tailscale.com/download/","https://www.dropbox.com/s/3dgcxqjm9m0826z/tailscale-ipn-setup-1.34.1.exe?dl=1")
+tightvnc = APPLICATION("TightVNC.msi","https://www.tightvnc.com/download.php","https://www.dropbox.com/s/8pnbrpjiv5bg1f8/tightvnc-2.8.63-gpl-setup-64bit.msi?dl=1")
+realvnc = APPLICATION("RealVNC.exe","https://www.realvnc.com/en/connect/download/viewer/windows/","https://www.dropbox.com/s/0tcpouo3wiistjn/VNC-Viewer-6.22.826-Windows.exe?dl=1")
+artnetominator = APPLICATION("Artnetominator.msi", "https://www.lightjams.com/artnetominator/artnetominator.msi","https://www.dropbox.com/s/acubg29p896pz3i/artnetominator.msi?dl=1")
+protokol = APPLICATION("Protokol.exe","https://hexler.net/protokol","https://www.dropbox.com/s/1pkcschqb673tfw/Protokol.exe?dl=1")
+bulk_rename_utility = APPLICATION("BulkRenameUtility.exe","https://www.bulkrenameutility.co.uk/Download.php","https://www.dropbox.com/s/wcxzmkts1evkznk/BRU_setup_3.4.4.0.exe?dl=1")
 
-# specify the url
-ffs_download_url = 'https://freefilesync.org/download.php'
-parsec_download_url = "https://builds.parsec.app/package/parsec-windows.exe"
-# myFFmpeg_download_url = "https://www.myffmpeg.com/myFFmpegsetup64bit.exe"
-myFFmpeg_download_url = "https://www.myffmpeg.com/download.html"
-netSetMan_download_url = "https://www.netsetman.com/en/freeware"
-# rufus_github_url = ["pbatard","rufus"]
-rufus_download_url = "https://rufus.ie/en/"
-sublime_download_url = "https://www.sublimetext.com/"
-tailscale_download_url = "https://tailscale.com/download/"
-tightvnc_download_url = "https://www.tightvnc.com/download.php"
-realvnc_download_url = "https://www.realvnc.com/en/connect/download/viewer/windows/"
-rename_download_url = "https://www.bulkrenameutility.co.uk/Download.php"
+
 putty_download_url = "https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html"
 github_download_url = "https://desktop.github.com"
 disugise_download_url = "https://download.disguise.one/"
-artnetominator_download_url = "https://www.lightjams.com/artnetominator/artnetominator.msi"
-midiox_download_url = "http://www.midiox.com/zip/midioxse.exe"
-protokol_download_url = "https://hexler.net/protokol"
 
 
-def parse_html_for_link(download_url: list):
+def parse_html_for_link(app: APPLICATION):
     # find the index of the character immediately after the "://" substring
-    index_start = download_url[0].find("://") + 3
+    index_start = app.main_link.find("://") + 3
     # find the index of the first "/" character that appears after index_start
-    index_end = download_url[0].find("/",index_start)
+    index_end = app.main_link.find("/",index_start)
     # extract the base URL of the website from the download_url string
-    base_url = download_url[0][:index_end]
+    base_url = app.main_link[:index_end]
 
     # send a request to the website
-    response = requests.get(download_url[0])
+    response = requests.get(app.main_link)
 
     # parse the HTML content
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -75,15 +75,14 @@ def parse_html_for_link(download_url: list):
         download_link = html[index_start:index_end]
 
     try:
-        print("STATUS CODE", requests.get(download_link).status_code)
-
+        requests.get(download_link).status_code
         # return the result of the request_download function
         print(f"DOWNLOADING FROM: {download_link}")
         return download_link
 
     except:
         print("getting from dropbox")
-        return download_url[1]
+        return app.backup_link
 
 
 def get_github(filename: str, owner: str, repo: str):
@@ -102,10 +101,10 @@ def get_github(filename: str, owner: str, repo: str):
 
         get_download(filename,exe_url)
 
-def get_download(file_name: str, download_link: list):
-    print(f"DOWNLOADING: {file_name}")
+def get_download(app: APPLICATION):
+    print(f"DOWNLOADING: {app.name}")
 
-    response = requests.get(parse_html_for_link(download_link), stream=True)
+    response = requests.get(parse_html_for_link(app), stream=True)
 
     if response.status_code == 200:
         # get the total size of the file
@@ -115,7 +114,7 @@ def get_download(file_name: str, download_link: list):
         # initialize a variable to store the last progress that was printed
         last_progress = -1
         
-        with open(file_name,'wb') as f:
+        with open("applications/"+app.name,'wb') as f:
             for data in response.iter_content(chunk_size=4096):
                 # update the number of bytes downloaded
                 downloaded += len(data)
@@ -148,13 +147,14 @@ def get_download(file_name: str, download_link: list):
 #                                    WORKING                                   #
 # ---------------------------------------------------------------------------- #
 # get_download("myFFmpeg.exe",myFFmpeg_download_url)
-# get_download("FreeFileSync.exe",ffs_download_url)
 # get_download("NetSetMan.exe",netSetMan_download_url)
 # get_download("Rufus.exe",rufus_download_url)
-# get_download("TightVNC.msi",tightvnc_download_url)
-# get_download("RealVNC.exe",realvnc_download_url)
-# get_download("protokol.exe",protokol_download_url)
 
+# get_download(free_file_sync)
+# get_download(tailscale)
+# get_download(tightvnc)
+# get_download(realvnc)
+get_download(protokol)
 
 
 # ---------------------------------------------------------------------------- #
@@ -162,7 +162,7 @@ def get_download(file_name: str, download_link: list):
 # ---------------------------------------------------------------------------- #
 # get_download("Artnetominator.msi",artnetominator_download_url)
 # get_download("Parsec.exe",parsec_download_url) 
-# get_download("midiox.exe",download["midi_ox"])
+# get_download("applications/midiox.exe",download["midi_ox"])
 
 
 # ---------------------------------------------------------------------------- #
