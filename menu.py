@@ -61,6 +61,31 @@ class MENU():
 			self.options_list[user_input].enter()
 
 # ---------------------------------------------------------------------------- #
+#                               VERSION DOWNLOAD                               #
+# ---------------------------------------------------------------------------- #
+class MENU_version(MENU):
+	def list_options(self):
+		self.options_list.reverse()
+		for i, option in enumerate(self.options_list):
+			i += 1
+			print(f"{int(i)}: {option}")
+		print(DIVIDER)
+		# self.wait_for_input()
+
+	def wait_for_input(self):
+		user_input = input()
+		if user_input == "":
+			pass
+		else:
+			user_input = int(user_input) - 1
+			
+			choice = self.options_list[user_input]
+
+			print(choice)
+			return choice
+
+
+# ---------------------------------------------------------------------------- #
 #                                  NAME CHANGE                                 #
 # ---------------------------------------------------------------------------- #
 
