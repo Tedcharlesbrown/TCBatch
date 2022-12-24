@@ -1,7 +1,7 @@
 import os
 import time
 
-from class_menu import MENU
+from classes import MENU
 from constants import *
 
 import importlib

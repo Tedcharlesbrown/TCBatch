@@ -10,7 +10,7 @@ import pyuac
 import winshell
 
 
-from class_menu import MENU
+from classes import MENU
 from menu_change_name import *
 from menu_change_ip import *
 from menu_download_software import *

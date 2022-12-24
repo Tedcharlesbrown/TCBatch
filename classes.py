@@ -1,4 +1,5 @@
 from constants import *
+from dataclasses import dataclass
 
 # ---------------------------------------------------------------------------- #
 #                               CLASS DEFINITION                               #
@@ -37,3 +38,12 @@ class MENU():
 		else:
 			user_input = int(user_input) - 1
 			self.options_list[user_input].enter()
+
+
+# ---------------------------------------------------------------------------- #
+#                              CLASS: APPLICATION                              #
+# ---------------------------------------------------------------------------- #
+@dataclass
+class APPLICATION:
+    name: str
+    link: str
