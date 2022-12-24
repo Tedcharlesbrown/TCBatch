@@ -1,5 +1,4 @@
 import winshell
-# from download import *
 
 APP_NAME = "TCB - Quick Setup"
 DIVIDER = "----------"

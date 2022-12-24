@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 
 import ftplib
+import threading
+import os
 
 from classes import MENU
 
@@ -15,6 +17,13 @@ import importlib
 # ---------------------------------------------------------------------------- #
 
 class MENU_download(MENU):
+
+		# Define a wrapper function that opens a separate terminal window and runs the get_download function
+	def run_in_separate_terminal(get_download_func, *args):
+		# Open a separate command prompt window (on Windows) and run the get_download function
+		os.system('start cmd /k python -c "from menu_download_software import get_download; get_download(*args)"')
+
+
 	def enter(self):
 		print(self.greeting)
 		print(DIVIDER)
@@ -25,20 +34,52 @@ class MENU_download(MENU):
 	def list_options(self):
 		for i, option in enumerate(self.options_list):
 			i += 1
-			print(f"{int(i)}: {option.name[:-4]}")
+			print(f"{int(i)}: {option.display}")
 		print(DIVIDER)
 		self.wait_for_input()
 
 	def wait_for_input(self):
-		user_input = input()
+		intial_user_input = input()
+		user_input = intial_user_input
+		
 
 		if user_input == "":
 			pass
 		else:
-			user_input = int(user_input) - 1
-			# print(self.options_list[user_input])
-			get_download(self.options_list[user_input],True)
-			# self.options_list[user_input].enter()
+			user_input = intial_user_input.split(",")
+			for _input in user_input:
+				archive = False
+				# CHECK TO SEE IF '/' IS INCLUDED TO DOWNLOAD DIRECT FROM ARCHIVE
+				if "/" in _input:
+					archive = True
+					_input = _input[:-1]
+					
+				if _input.isdigit():
+					_input = int(_input) - 1
+
+
+				# Create a new thread for each iteration of the loop and call the wrapper function
+				t = threading.Thread(target=self.run_in_separate_terminal, args=(get_download, self.options_list[_input], archive))
+				t.start()
+
+				# print(self.options_list[_input].name,archive)
+				# try:
+				# get_download(self.options_list[_input],archive)
+				# except:
+				# 	try:
+				# 		user_input = intial_user_input.split("/")
+				# 		for i, _input in enumerate(user_input):
+				# 			if i < len(user_input) - 1:
+				# 				get_download(self.options_list[int(_input)-1],True)
+				# 			else:
+				# 				get_download(self.options_list[int(_input)-1],False)
+
+				# 	except:
+				# 		pass
+				# 		# print(f"COULD NOT PARSE: {intial_user_input}")
+
+
+
 
 		main.menu()
 
@@ -67,6 +108,10 @@ class MENU_version(MENU):
 			print(choice)
 			return choice
 
+		print("GOING BACK TO MAIN MENU")
+		print(DIVIDER)
+		main.menu()
+
 def download_from_archive(file_to_search: str):
 	print("DOWNLOADING FROM ARCHIVE")
 	file_found = False
@@ -85,7 +130,7 @@ def download_from_archive(file_to_search: str):
 	m_versions = MENU_version("Download Versions", "MULTIPLE VERSIONS FOUND, WHICH VERSION TO DOWNLOAD")
 
 	for file in files:
-		if file.lower().find(file_to_search.lower()[:-4]) != -1:
+		if file.lower().replace("-","").find(file_to_search.lower().replace("-","")[:-4]) != -1:
 			file_to_download = file
 			file_found = True
 			m_versions.add_option(file)
@@ -104,11 +149,12 @@ def download_from_archive(file_to_search: str):
 	else:
 		print("NOT IN ARCHIVE")
 
+	print(DIVIDER)
 	ftp.quit()
 	
 def parse_html_for_link(app: APPLICATION, verbose: bool):
 
-	# print(type(app))
+	# print("TEST")
 	if type(app) == str:
 		link = app
 	else:
@@ -123,7 +169,7 @@ def parse_html_for_link(app: APPLICATION, verbose: bool):
 		index_end = link.find("/",index_start)
 		# extract the base URL of the website from the download_url string
 		base_url = link[:index_end]
-
+		
 		# send a request to the website
 		response = requests.get(link)
 
@@ -152,6 +198,9 @@ def parse_html_for_link(app: APPLICATION, verbose: bool):
 			index_start = download_link.rfind("href=") + 6
 			# extract the download name from the html string
 			download_name = html[index_start:index_end]
+			# if download_name does not begin with a '/' add one
+			if download_name[0] != "/":
+				download_name = "/" + download_name
 			# concatenate the base URL and the download name to create the full download link
 			download_link = base_url + download_name
 			
@@ -161,7 +210,7 @@ def parse_html_for_link(app: APPLICATION, verbose: bool):
 			download_link = html[index_start:index_end]
 
 	try:
-		requests.get(download_link) #HERE
+		# requests.get(download_link) #HERE
 		# return the result of the request_download function
 		if verbose:
 			print(f"DOWNLOADING FROM: {download_link}")
@@ -192,19 +241,18 @@ def download_from_web(response, app):
 		name = app
 	else:
 		name = app.name
-
-	if ".exe" in response.url or ".msi" in response.url:
-		index_start = response.url.rfind("/")
-		name = response.url[index_start:]
-	elif response.headers.get("Content-Disposition"):
+	
+	if response.headers.get("Content-Disposition"):
 		# Get the value of the Content-Disposition header
 		content_disposition = response.headers.get("Content-Disposition")
 		# Split the value by ";" to get a list of key-value pairs
-		index_start = content_disposition.find("filename=") + 10
-		name = content_disposition[index_start:-1]
+		content_disposition = content_disposition.replace("\"","")
+		index_start = content_disposition.find("filename=") + 9
+		name = content_disposition[index_start:]
+	elif ".exe" in response.url or ".msi" in response.url:
+		index_start = response.url.rfind("/")
+		name = response.url[index_start:]
 
-
-		# print(response.url)
 
 	if response.status_code == 200:
 		# get the total size of the file
@@ -214,6 +262,8 @@ def download_from_web(response, app):
 		# initialize a variable to store the last progress that was printed
 		last_progress = -1
 		
+		print(DIVIDER)
+
 		with open(APPLICATION_FOLDER_PATH + name,'wb') as f:
 			for data in response.iter_content(chunk_size=4096):
 				# update the number of bytes downloaded
@@ -225,18 +275,22 @@ def download_from_web(response, app):
 					# calculate the download progress as a percentage
 					progress = int(downloaded / total_size * 100)
 					# only print the progress if it is a multiple of 10 and if it is different from the last progress that was printed
-					if progress % 10 == 0 and progress != last_progress:
-						print(f'Download progress: {progress}%')
+					if progress % 25 == 0 and progress != last_progress:
+						print(f'Download progress: {(downloaded / 1e+6):.2f} Megabytes of {(total_size / 1e+6):.2f}, [ {progress}% ]')
 						last_progress = progress
+	
 	else:
 		print("Error downloading file:", response.status_code)
 
+	print(DIVIDER)
+
 def get_download(app: APPLICATION, archive: bool):
-	print(f"DOWNLOADING: {app.name[:-4]}")
+	print(f"DOWNLOADING: {app.display}")
 
 	if app.link == "False" or archive:
 		pass
 	elif parse_html_for_link(app, False):
+		# print("ATTEMPTING TO GET FROM INTERNET")
 		response = requests.get(parse_html_for_link(app, True), stream=True)
 		download_from_web(response, app)
 		return
@@ -249,41 +303,6 @@ def custom_download(link: str):
 	else:
 		print("COULD NOT FETCH DOWNLOAD")
 
-# ---------------------------------------------------------------------------- #
-#                                  NOT WORKING                                 #
-# ---------------------------------------------------------------------------- #
-# get_download(github, False)
-
-# get_download(disguise)
-
-# ---------------------------------------------------------------------------- #
-#                                    WORKING                                   #
-# ---------------------------------------------------------------------------- #
-# custom_download("https://freefilesync.org/download.php")
-# get_download("myFFmpeg.exe",myFFmpeg_download_url)
-# get_download("NetSetMan.exe",netSetMan_download_url)
-# get_download("Rufus.exe",rufus_download_url)
-
-# get_download(free_file_sync)
-# get_download(tailscale)
-# get_download(tightvnc)
-# get_download(realvnc)
-# get_download(protokol)
-# get_download(obs, False)
-# get_download(ndi, False)
-
-# ---------------------------------------------------------------------------- #
-#                                DIRECT DOWNLOAD                               #
-# ---------------------------------------------------------------------------- #
-# get_download("Artnetominator.msi",artnetominator_download_url)
-# get_download(parsec) 
-# get_download("applications/midiox.exe",download["midi_ox"])
-
-
-# ---------------------------------------------------------------------------- #
-#                                 FROM DROPBOX                                 #
-# ---------------------------------------------------------------------------- #
-# get_download(bulk_rename_utility)
 
 # ---------------------------------------------------------------------------- #
 #                                 BOTTOM IMPORT                                #

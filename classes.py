@@ -45,5 +45,6 @@ class MENU():
 # ---------------------------------------------------------------------------- #
 @dataclass
 class APPLICATION:
-    name: str
-    link: str
+	display: str
+	name: str
+	link: str
