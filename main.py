@@ -16,6 +16,7 @@ from menu_change_ip import *
 from menu_download_software import *
 from menu_install_software import *
 from menu_symlink import *
+from menu_restart import *
 
 from constants import *
 # ---------------------------------------------------------------------------- #
@@ -38,12 +39,14 @@ def menu():
 	m_download = MENU_download("Download Software", ASCII_DOWNLOAD)
 	m_software = MENU_software("Install Software", ASCII_SOFTWARE)
 	m_symlink = MENU_symlink("Create Symlink Folder", ASCII_SYMLINK)
+	m_restart = MENU_restart("Restart Computer", ASCII_RESTART)
 
 	m_main.add_option(m_name)
 	m_main.add_option(m_ip)
 	m_main.add_option(m_download)
 	m_main.add_option(m_software)
 	m_main.add_option(m_symlink)
+	m_main.add_option(m_restart)
 
 	m_main.enter()
 

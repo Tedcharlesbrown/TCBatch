@@ -40,6 +40,8 @@ class MENU_download(MENU):
 			get_download(self.options_list[user_input],True)
 			# self.options_list[user_input].enter()
 
+		main.menu()
+
 
 # ---------------------------------------------------------------------------- #
 #                               VERSION DOWNLOAD                               #
