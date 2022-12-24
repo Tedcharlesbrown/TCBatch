@@ -1,4 +1,7 @@
+
+
 import requests
+
 from bs4 import BeautifulSoup
 
 import ftplib
@@ -17,13 +20,6 @@ import importlib
 # ---------------------------------------------------------------------------- #
 
 class MENU_download(MENU):
-
-		# Define a wrapper function that opens a separate terminal window and runs the get_download function
-	def run_in_separate_terminal(get_download_func, *args):
-		# Open a separate command prompt window (on Windows) and run the get_download function
-		os.system('start cmd /k python -c "from menu_download_software import get_download; get_download(*args)"')
-
-
 	def enter(self):
 		print(self.greeting)
 		print(DIVIDER)
@@ -59,12 +55,10 @@ class MENU_download(MENU):
 
 
 				# Create a new thread for each iteration of the loop and call the wrapper function
-				t = threading.Thread(target=self.run_in_separate_terminal, args=(get_download, self.options_list[_input], archive))
-				t.start()
 
 				# print(self.options_list[_input].name,archive)
 				# try:
-				# get_download(self.options_list[_input],archive)
+				get_download(self.options_list[_input],archive)
 				# except:
 				# 	try:
 				# 		user_input = intial_user_input.split("/")

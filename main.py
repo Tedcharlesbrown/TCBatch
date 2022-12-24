@@ -1,3 +1,4 @@
+
 import os.path
 import os
 import subprocess
@@ -6,19 +7,24 @@ import subprocess
 import msvcrt
 import time
 import ipaddress
-import pyuac
-import winshell
 
+import pyuac
+
+import winshell
 
 from classes import MENU
 from menu_change_name import *
 from menu_change_ip import *
+
 from menu_download_software import *
+
 from menu_install_software import *
 from menu_symlink import *
 from menu_restart import *
 
 from constants import *
+
+
 # ---------------------------------------------------------------------------- #
 
 def folder_application_init():
@@ -57,6 +63,7 @@ def menu():
 def main():
 	folder_application_init()
 	menu()
+
 
 if __name__ == "__main__":
 	if not pyuac.isUserAdmin():

@@ -4,6 +4,7 @@ APP_NAME = "TCB - Quick Setup"
 DIVIDER = "----------"
 PATH_BATCH_FOLDER = "batch_files"
 # PATH_STARTUP_FOLDER = "\%" + "appdata%\Microsoft\Windows\Start Menu\Programs\Startup"
+
 PATH_STARTUP_FOLDER = winshell.startup()
 
 APPLICATION_INSTALL_LIST = []
