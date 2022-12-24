@@ -3,8 +3,45 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass
 import ftplib
 from timeout import timeout
-from menu import MENU_version
+from class_menu import MENU
 from constants import *
+
+# ---------------------------------------------------------------------------- #
+#                                   DOWNLOAD                                   #
+# ---------------------------------------------------------------------------- #
+
+class MENU_download(MENU):
+	def enter(self):
+		print(self.greeting)
+		print(DIVIDER)
+		for app in APPLICATION_DOWNLOAD_LIST:
+			self.options_list.append(app)
+			print(app.name)	
+
+
+# ---------------------------------------------------------------------------- #
+#                               VERSION DOWNLOAD                               #
+# ---------------------------------------------------------------------------- #
+class MENU_version(MENU):
+	def list_options(self):
+		self.options_list.reverse()
+		for i, option in enumerate(self.options_list):
+			i += 1
+			print(f"{int(i)}: {option}")
+		print(DIVIDER)
+		# self.wait_for_input()
+
+	def wait_for_input(self):
+		user_input = input()
+		if user_input == "":
+			pass
+		else:
+			user_input = int(user_input) - 1
+			
+			choice = self.options_list[user_input]
+
+			print(choice)
+			return choice
 
 @dataclass
 class APPLICATION:
