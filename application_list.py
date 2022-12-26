@@ -1,14 +1,15 @@
 from constants import *
 from classes import APPLICATION
 
-
-
 APPLICATION_DOWNLOAD_LIST = [
     APPLICATION("Artnetominator","Artnetominator.msi", "https://www.lightjams.com/artnetominator/artnetominator.msi"),
     APPLICATION("Barco Event Master","Barco-Event-Master.exe","False"),
+    APPLICATION("BGInfo","BGInfo.exe","https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo"),
     APPLICATION("Blackmagic Atem","Blackmagic-Atem.msi","False"),
     APPLICATION("Blackmagic Multiview","Blackmagic-Multiview.msi","False"),
     APPLICATION("Blackmagic Videohub","Blackmagic-Videohub.msi","False"),
+    APPLICATION("Bitfocus Companion","Companion.exe","False"),
+    APPLICATION("Brompton - Tessera", "Tessera.exe","False"),
     APPLICATION("Bulk Rename Utility","Bulk-Rename-Utility.exe","https://www.bulkrenameutility.co.uk/Download.php"),
     APPLICATION("D3 Disguise","d3.exe", "False"),
     APPLICATION("ETC Eos","EOS-Family.exe","False"),
