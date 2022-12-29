@@ -43,3 +43,13 @@ APPLICATION_DOWNLOAD_LIST = [
 # VSCode
 # Scopes (Verification only)
 # NDI Discovery Server
+# Dashboard
+# Unifi
+# Processing
+# P-Touch Editor
+# Decimator
+# WinDirStat
+# Blender
+# fSpy
+# Instant Meshes
+# TouchOSC
