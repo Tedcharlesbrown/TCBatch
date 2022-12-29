@@ -39,3 +39,7 @@ APPLICATION_DOWNLOAD_LIST = [
 # VMIX
 # SPIDER CONTROL PANEL
 # PUTTY
+# PYTHON
+# VSCode
+# Scopes (Verification only)
+# NDI Discovery Server
