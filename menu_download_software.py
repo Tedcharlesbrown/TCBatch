@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import ftplib
 import threading
 import os
+from urllib.parse import urlparse
 
 from classes import MENU
 
@@ -43,37 +44,17 @@ class MENU_download(MENU):
 			pass
 		else:
 			user_input = intial_user_input.split(",")
-			for _input in user_input:
+			for number in user_input:
 				archive = False
 				# CHECK TO SEE IF '/' IS INCLUDED TO DOWNLOAD DIRECT FROM ARCHIVE
-				if "/" in _input:
+				if "/" in number:
 					archive = True
-					_input = _input[:-1]
+					number = number[:-1]
 					
-				if _input.isdigit():
-					_input = int(_input) - 1
+				if number.isdigit():
+					number = int(number) - 1
 
-
-				# Create a new thread for each iteration of the loop and call the wrapper function
-
-				# print(self.options_list[_input].name,archive)
-				# try:
-				get_download(self.options_list[_input],archive)
-				# except:
-				# 	try:
-				# 		user_input = intial_user_input.split("/")
-				# 		for i, _input in enumerate(user_input):
-				# 			if i < len(user_input) - 1:
-				# 				get_download(self.options_list[int(_input)-1],True)
-				# 			else:
-				# 				get_download(self.options_list[int(_input)-1],False)
-
-				# 	except:
-				# 		pass
-				# 		# print(f"COULD NOT PARSE: {intial_user_input}")
-
-
-
+				get_download(self.options_list[number],archive)
 
 		main.menu()
 
@@ -145,7 +126,7 @@ def download_from_archive(file_to_search: str):
 
 	print(DIVIDER)
 	ftp.quit()
-	
+
 def parse_html_for_link(app: APPLICATION, verbose: bool):
 
 	# print("TEST")
@@ -202,13 +183,15 @@ def parse_html_for_link(app: APPLICATION, verbose: bool):
 		else:
 			# extract the download name from the html string
 			download_link = html[index_start:index_end]
-
 	try:
-		# requests.get(download_link) #HERE
-		# return the result of the request_download function
-		if verbose:
-			print(f"DOWNLOADING FROM: {download_link}")
-		return download_link
+		# is_valid_url(download_link)
+		if download_link.find(" ") == -1:
+			if verbose:
+				print(f"DOWNLOADING FROM: {download_link}")
+			return download_link
+		else:
+			print("COULD NOT PARSE DOWNLOAD LINK")
+			return False
 	except:
 		return False
 
@@ -275,6 +258,7 @@ def download_from_web(response, app):
 	
 	else:
 		print("Error downloading file:", response.status_code)
+		download_from_archive(app.name)
 
 	print(DIVIDER)
 
