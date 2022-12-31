@@ -4,9 +4,9 @@ import requests
 
 from bs4 import BeautifulSoup
 
-import ftplib
 import threading
-import os
+import ftplib
+import msvcrt
 from urllib.parse import urlparse
 
 from classes import MENU
@@ -15,6 +15,8 @@ from constants import *
 from application_list import *
 
 import importlib
+
+VERBOSE = True
 
 # ---------------------------------------------------------------------------- #
 #                                   DOWNLOAD                                   #
@@ -115,85 +117,98 @@ def download_from_archive(file_to_search: str):
 		if versions > 1:
 			m_versions.enter()
 			file_to_download = m_versions.wait_for_input()
-		# Download the file
-		with open(APPLICATION_FOLDER_PATH + file_to_download, 'wb') as f:
-			print(f"FOUND {file_to_download} FROM ARCHIVE, PLEASE WAIT")
-			ftp.retrbinary(f'RETR {file_to_download}', f.write) 
-			print("DOWNLOAD COMPLETE")
-		
+
+		# Get the size of the file on the server
+		download_size = ftp.size(file_to_download)
+
+		try:
+			# Open the local file in binary write mode
+			with open(APPLICATION_FOLDER_PATH + file_to_download, 'wb') as f:
+				# initialize a variable to store the number of bytes downloaded so far
+				downloaded = 0
+				# initialize a variable to store the last progress that was printed
+				last_progress = -1
+
+				print(DIVIDER)
+
+				# Download the file
+				def callback(data):
+					# update the number of bytes downloaded
+					nonlocal downloaded
+					nonlocal last_progress
+
+					key = msvcrt.getch()
+					if key == b'\r':  # b'\r' represents the Enter key
+						# Handle the keyboard interrupt
+						raise KeyboardInterrupt
+
+					downloaded += len(data)
+					# write the data to the file
+					f.write(data)
+					# check if the total size is known
+					if download_size > 0:
+						# calculate the download progress as a percentage
+						progress = int(downloaded / download_size * 100)
+						# only print the progress if it is a multiple of 25 and if it is different from the last progress that was printed
+						if progress % 25 == 0 and progress != last_progress:
+							print(f'Download progress: {(downloaded / 1e+6):.2f} Megabytes of {(download_size / 1e+6):.2f}, [ {progress}% ]')
+							last_progress = progress
+				ftp.retrbinary(f'RETR {file_to_download}', callback)
+
+		except KeyboardInterrupt:
+			# code to handle the keyboard interrupt goes here
+			print('Keyboard interrupt detected, stopping download...')
+
 	else:
 		print("NOT IN ARCHIVE")
 
 	print(DIVIDER)
-	ftp.quit()
+	
+	try:
+		ftp.quit()
+	except:
+		pass
 
-def parse_html_for_link(app: APPLICATION, verbose: bool):
+def parse_html_for_link(app: APPLICATION):
 
-	# print("TEST")
+	# IF DIRECT LINK GIVEN, USE LINK
 	if type(app) == str:
-		link = app
+		url = app
+	# ELSE, APP GIVEN, USE APP LINK
 	else:
-		link = app.link
+		url = app.link
 
-	if ".exe" in link or ".msi" in link:
-		download_link = link
+	if ".exe" in url or ".msi" in url:
+		# IF URL IS DIRECT LINK
+		if VERBOSE: print("PARSING LINK AS DIRECT")
+		download_link = url
 	else:
-		# find the index of the character immediately after the "://" substring
-		index_start = link.find("://") + 3
-		# find the index of the first "/" character that appears after index_start
-		index_end = link.find("/",index_start)
-		# extract the base URL of the website from the download_url string
-		base_url = link[:index_end]
+		# PARSE URL FOR BASE
+		parsed_url = urlparse(url)
+		base_url = '{}://{}'.format(parsed_url.scheme, parsed_url.netloc)
+		if VERBOSE: print(f"FOUND BASE URL: {base_url}")
 		
 		# send a request to the website
-		response = requests.get(link)
+		response = requests.get(url).text
 
 		# parse the HTML content
-		soup = BeautifulSoup(response.text, 'html.parser')
+		soup = BeautifulSoup(response, 'html.parser')
 
-		# convert the parsed HTML content to a string and encode it as UTF-8
-		html = str(soup.prettify().encode('utf-8'))
+		# Find the download link
+
+		download_link = soup.find('a', href=lambda x: x and (x.endswith('.exe') or x.endswith('.msi')))
 		
-		# find the index of the character immediately after the ".exe" substring
-		index_end = -1
-		if html.find(".exe") != -1:
-			index_end = html.find(".exe") + 4
-		elif html.find(".msi") != -1:
-			index_end = html.find(".msi") + 4
-
-		# extract the download link from the html string
-		download_link = html[:index_end]
-
-		# find the index of the character immediately after the "http" substring
-		index_start = download_link.rfind("http")
-
-		if index_start == -1 or index_start < download_link.rfind(" "):
-			if verbose:
-				print("DIRECT LINK NOT GIVEN, USING BASE")
-			index_start = download_link.rfind("href=") + 6
-			# extract the download name from the html string
-			download_name = html[index_start:index_end]
-			# if download_name does not begin with a '/' add one
-			if download_name[0] != "/":
-				download_name = "/" + download_name
-			# concatenate the base URL and the download name to create the full download link
-			download_link = base_url + download_name
-			
-			# print(index_start,download_name)
+		if download_link is None:
+			if VERBOSE: print("NO EXE OR MSI FOUND")
 		else:
-			# extract the download name from the html string
-			download_link = html[index_start:index_end]
-	try:
-		# is_valid_url(download_link)
-		if download_link.find(" ") == -1:
-			if verbose:
-				print(f"DOWNLOADING FROM: {download_link}")
-			return download_link
-		else:
-			print("COULD NOT PARSE DOWNLOAD LINK")
-			return False
-	except:
-		return False
+			download_link = download_link['href']
+			if VERBOSE: print(f"EXE OR MSI FOUND: {download_link}")
+			if download_link.find("http") == -1:
+				if VERBOSE: print("NO HTTP FOUND, ADDING BASE URL")
+				download_link = f"{base_url}/{download_link}"
+
+	return download_link
+
 
 
 # def get_github(filename: str, owner: str, repo: str):
@@ -212,74 +227,86 @@ def parse_html_for_link(app: APPLICATION, verbose: bool):
 
 #         get_download(filename,exe_url)
 
-def download_from_web(response, app):
+def download_from_web(url, app):
 
-	if type(app) == str:
-		name = app
-	else:
-		name = app.name
+	# if type(app) == str:
+	# 	name = app
+	# else:
+	# 	name = app.name
+
+	response = requests.get(url, stream=True)
 	
-	if response.headers.get("Content-Disposition"):
-		# Get the value of the Content-Disposition header
-		content_disposition = response.headers.get("Content-Disposition")
-		# Split the value by ";" to get a list of key-value pairs
-		content_disposition = content_disposition.replace("\"","")
-		index_start = content_disposition.find("filename=") + 9
-		name = content_disposition[index_start:]
+
+	if response.headers.get("Content-Disposition") and response.headers.get("Content-Disposition").startswith("filename="):
+		content_disposition = response.headers.get("Content-Disposition").replace("\"", "")
+		name = content_disposition[content_disposition.find("filename=") + 9:]
 	elif ".exe" in response.url or ".msi" in response.url:
 		index_start = response.url.rfind("/")
 		name = response.url[index_start:]
 
+	# Create a flag to track whether the download has been interrupted
+	interrupted = False
 
-	if response.status_code == 200:
-		# get the total size of the file
-		total_size = int(response.headers.get('content-length', 0))
-		# initialize a variable to store the number of bytes downloaded so far
-		downloaded = 0
-		# initialize a variable to store the last progress that was printed
-		last_progress = -1
+	# Create a thread to listen for the Enter key press
+	def listen_for_interrupt():
+		nonlocal interrupted
+		# Wait for the user to press the Enter key
+		key = msvcrt.getch()
+		if key == b'\r':  # b'\r' represents the Enter key
+			# Set the interrupted flag to True
+			interrupted = True
+
+    # Start the interrupt listener thread
+	interrupt_listener = threading.Thread(target=listen_for_interrupt)
+	interrupt_listener.start()
+
+	try:
+		if response.status_code == 200:
+			# get the total size of the file
+			total_size = int(response.headers.get('content-length', 0))
+			# initialize a variable to store the number of bytes downloaded so far
+			downloaded = 0
+			# initialize a variable to store the last progress that was printed
+			last_progress = -1
+			
+			print(DIVIDER)
+
+			with open(APPLICATION_FOLDER_PATH + name,'wb') as f:
+				for data in response.iter_content(chunk_size=4096):
+					# Check for interrupt
+					if interrupted:
+						raise KeyboardInterrupt
+					# update the number of bytes downloaded
+					downloaded += len(data)
+					# write the data to the file
+					f.write(data)
+					# check if the total size is known
+					if total_size > 0:
+						# calculate the download progress as a percentage
+						progress = int(downloaded / total_size * 100)
+						# only print the progress if it is a multiple of 25 and if it is different from the last progress that was printed
+						if progress % 25 == 0 and progress != last_progress:
+							print(f'Download progress: {(downloaded / 1e+6):.2f} Megabytes of {(total_size / 1e+6):.2f}, [ {progress}% ]')
+							last_progress = progress
 		
-		print(DIVIDER)
+		else:
+			print("Error downloading file:", response.status_code)
+			download_from_archive(app.name)
 
-		with open(APPLICATION_FOLDER_PATH + name,'wb') as f:
-			for data in response.iter_content(chunk_size=4096):
-				# update the number of bytes downloaded
-				downloaded += len(data)
-				# write the data to the file
-				f.write(data)
-				# check if the total size is known
-				if total_size > 0:
-					# calculate the download progress as a percentage
-					progress = int(downloaded / total_size * 100)
-					# only print the progress if it is a multiple of 10 and if it is different from the last progress that was printed
-					if progress % 25 == 0 and progress != last_progress:
-						print(f'Download progress: {(downloaded / 1e+6):.2f} Megabytes of {(total_size / 1e+6):.2f}, [ {progress}% ]')
-						last_progress = progress
-	
-	else:
-		print("Error downloading file:", response.status_code)
-		download_from_archive(app.name)
+	except KeyboardInterrupt:
+			# code to handle the keyboard interrupt goes here
+			print('Keyboard interrupt detected, stopping download...')
 
 	print(DIVIDER)
 
 def get_download(app: APPLICATION, archive: bool):
+	print(DIVIDER)
 	print(f"DOWNLOADING: {app.display}")
 
-	if app.link == "False" or archive:
-		pass
-	elif parse_html_for_link(app, False):
-		# print("ATTEMPTING TO GET FROM INTERNET")
-		response = requests.get(parse_html_for_link(app, True), stream=True)
-		download_from_web(response, app)
-		return
-	download_from_archive(app.name)
-		
-def custom_download(link: str):
-	if parse_html_for_link(link, False):
-		response = requests.get(parse_html_for_link(link, True), stream=True)
-		download_from_web(response, "custom.exe")
+	if archive == False and app.link:
+		download_from_web(parse_html_for_link(app), app)
 	else:
-		print("COULD NOT FETCH DOWNLOAD")
+		download_from_archive(app.name)
 
 
 # ---------------------------------------------------------------------------- #

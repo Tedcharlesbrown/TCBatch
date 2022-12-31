@@ -1,5 +1,6 @@
 from constants import *
 from dataclasses import dataclass
+from typing import Union
 
 # ---------------------------------------------------------------------------- #
 #                               CLASS DEFINITION                               #
@@ -47,4 +48,4 @@ class MENU():
 class APPLICATION:
 	display: str
 	name: str
-	link: str
+	link: Union[str,bool]
