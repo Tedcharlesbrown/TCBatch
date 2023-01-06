@@ -8,6 +8,7 @@ import threading
 import ftplib
 import msvcrt
 from urllib.parse import urlparse
+import json
 
 from classes import MENU
 
@@ -21,6 +22,7 @@ VERBOSE = True
 # ---------------------------------------------------------------------------- #
 #                                   DOWNLOAD                                   #
 # ---------------------------------------------------------------------------- #
+
 
 class MENU_download(MENU):
 	def enter(self):
@@ -40,7 +42,6 @@ class MENU_download(MENU):
 	def wait_for_input(self):
 		intial_user_input = input()
 		user_input = intial_user_input
-		
 
 		if user_input == "":
 			pass
@@ -52,11 +53,11 @@ class MENU_download(MENU):
 				if "/" in number:
 					archive = True
 					number = number[:-1]
-					
+
 				if number.isdigit():
 					number = int(number) - 1
 
-				get_download(self.options_list[number],archive)
+				get_download(self.options_list[number], archive)
 
 		main.menu()
 
@@ -79,7 +80,7 @@ class MENU_version(MENU):
 			pass
 		else:
 			user_input = int(user_input) - 1
-			
+
 			choice = self.options_list[user_input]
 
 			print(choice)
@@ -88,6 +89,7 @@ class MENU_version(MENU):
 		print("GOING BACK TO MAIN MENU")
 		print(DIVIDER)
 		main.menu()
+
 
 def download_from_archive(file_to_search: str):
 	print("DOWNLOADING FROM ARCHIVE")
@@ -98,8 +100,7 @@ def download_from_archive(file_to_search: str):
 	except:
 		ftp = ftplib.FTP("192.168.1.100")
 
-	ftp.login("_FTP_","tedcharlesbrown_ftp")
-	# ftp.cwd("/Application_Installers")
+	ftp.login("_FTP_", "tedcharlesbrown_ftp")
 
 	files = ftp.nlst()
 
@@ -107,7 +108,7 @@ def download_from_archive(file_to_search: str):
 	m_versions = MENU_version("Download Versions", "MULTIPLE VERSIONS FOUND, WHICH VERSION TO DOWNLOAD")
 
 	for file in files:
-		if file.lower().replace("-","").find(file_to_search.lower().replace("-","")[:-4]) != -1:
+		if file.lower().replace("-", "").find(file_to_search.lower().replace("-", "")[:-4]) != -1:
 			file_to_download = file
 			file_found = True
 			m_versions.add_option(file)
@@ -120,6 +121,22 @@ def download_from_archive(file_to_search: str):
 
 		# Get the size of the file on the server
 		download_size = ftp.size(file_to_download)
+
+		# Create a flag to track whether the download has been interrupted
+		interrupted = False
+
+		# Create a thread to listen for the Enter key press
+		def listen_for_interrupt():
+			nonlocal interrupted
+			# Wait for the user to press the Enter key
+			key = msvcrt.getch()
+			if key == b'\r':  # b'\r' represents the Enter key
+				# Set the interrupted flag to True
+				interrupted = True
+
+		# Start the interrupt listener thread
+		interrupt_listener = threading.Thread(target=listen_for_interrupt)
+		interrupt_listener.start()
 
 		try:
 			# Open the local file in binary write mode
@@ -137,9 +154,8 @@ def download_from_archive(file_to_search: str):
 					nonlocal downloaded
 					nonlocal last_progress
 
-					key = msvcrt.getch()
-					if key == b'\r':  # b'\r' represents the Enter key
-						# Handle the keyboard interrupt
+					# Check for interrupt
+					if interrupted:
 						raise KeyboardInterrupt
 
 					downloaded += len(data)
@@ -153,6 +169,7 @@ def download_from_archive(file_to_search: str):
 						if progress % 25 == 0 and progress != last_progress:
 							print(f'Download progress: {(downloaded / 1e+6):.2f} Megabytes of {(download_size / 1e+6):.2f}, [ {progress}% ]')
 							last_progress = progress
+
 				ftp.retrbinary(f'RETR {file_to_download}', callback)
 
 		except KeyboardInterrupt:
@@ -163,11 +180,12 @@ def download_from_archive(file_to_search: str):
 		print("NOT IN ARCHIVE")
 
 	print(DIVIDER)
-	
+
 	try:
 		ftp.quit()
 	except:
 		pass
+
 
 def parse_html_for_link(app: APPLICATION):
 
@@ -180,14 +198,16 @@ def parse_html_for_link(app: APPLICATION):
 
 	if ".exe" in url or ".msi" in url:
 		# IF URL IS DIRECT LINK
-		if VERBOSE: print("PARSING LINK AS DIRECT")
+		if VERBOSE:
+			print("PARSING LINK AS DIRECT")
 		download_link = url
 	else:
 		# PARSE URL FOR BASE
 		parsed_url = urlparse(url)
 		base_url = '{}://{}'.format(parsed_url.scheme, parsed_url.netloc)
-		if VERBOSE: print(f"FOUND BASE URL: {base_url}")
-		
+		if VERBOSE:
+			print(f"FOUND BASE URL: {base_url}")
+
 		# send a request to the website
 		response = requests.get(url).text
 
@@ -197,19 +217,38 @@ def parse_html_for_link(app: APPLICATION):
 		# Find the download link
 
 		download_link = soup.find('a', href=lambda x: x and (x.endswith('.exe') or x.endswith('.msi')))
-		
+
 		if download_link is None:
-			if VERBOSE: print("NO EXE OR MSI FOUND")
+			if VERBOSE:
+				print("NO EXE OR MSI FOUND")
+			find_download_button(soup)
 		else:
 			download_link = download_link['href']
-			if VERBOSE: print(f"EXE OR MSI FOUND: {download_link}")
+			if VERBOSE:
+				print(f"EXE OR MSI FOUND: {download_link}")
 			if download_link.find("http") == -1:
-				if VERBOSE: print("NO HTTP FOUND, ADDING BASE URL")
+				if VERBOSE:
+					print("NO HTTP FOUND, ADDING BASE URL")
 				download_link = f"{base_url}/{download_link}"
+			else:
+				find_download_button(soup)
 
 	return download_link
 
+def find_download_button(soup):
+	# Find the download button using its ID
+	download_button = soup.find(id="download-alt-win") # VSCODE
+	# Find the URL to download the file from
+	download_link = download_button['href']
 
+
+	# script_element = soup.find(id="download-details")
+	# download_details_json = script_element.innerHTML
+	# download_details = json.loads(download_details_json)
+	# download_link = download_details["windows"]["downloadLink"]
+
+	# print(download_link)
+	return download_link
 
 # def get_github(filename: str, owner: str, repo: str):
 #     # define the URL of the GitHub releases page
@@ -229,13 +268,9 @@ def parse_html_for_link(app: APPLICATION):
 
 def download_from_web(url, app):
 
-	# if type(app) == str:
-	# 	name = app
-	# else:
-	# 	name = app.name
+	# return
 
 	response = requests.get(url, stream=True)
-	
 
 	if response.headers.get("Content-Disposition") and response.headers.get("Content-Disposition").startswith("filename="):
 		content_disposition = response.headers.get("Content-Disposition").replace("\"", "")
@@ -256,7 +291,7 @@ def download_from_web(url, app):
 			# Set the interrupted flag to True
 			interrupted = True
 
-    # Start the interrupt listener thread
+	# Start the interrupt listener thread
 	interrupt_listener = threading.Thread(target=listen_for_interrupt)
 	interrupt_listener.start()
 
@@ -268,10 +303,10 @@ def download_from_web(url, app):
 			downloaded = 0
 			# initialize a variable to store the last progress that was printed
 			last_progress = -1
-			
+
 			print(DIVIDER)
 
-			with open(APPLICATION_FOLDER_PATH + name,'wb') as f:
+			with open(APPLICATION_FOLDER_PATH + name, 'wb') as f:
 				for data in response.iter_content(chunk_size=4096):
 					# Check for interrupt
 					if interrupted:
@@ -288,23 +323,27 @@ def download_from_web(url, app):
 						if progress % 25 == 0 and progress != last_progress:
 							print(f'Download progress: {(downloaded / 1e+6):.2f} Megabytes of {(total_size / 1e+6):.2f}, [ {progress}% ]')
 							last_progress = progress
-		
+
 		else:
 			print("Error downloading file:", response.status_code)
 			download_from_archive(app.name)
 
 	except KeyboardInterrupt:
-			# code to handle the keyboard interrupt goes here
-			print('Keyboard interrupt detected, stopping download...')
+		   # code to handle the keyboard interrupt goes here
+		print('Keyboard interrupt detected, stopping download...')
 
 	print(DIVIDER)
+
 
 def get_download(app: APPLICATION, archive: bool):
 	print(DIVIDER)
 	print(f"DOWNLOADING: {app.display}")
 
 	if archive == False and app.link:
-		download_from_web(parse_html_for_link(app), app)
+		try:
+			download_from_web(parse_html_for_link(app), app)
+		except:
+			download_from_archive(app.name)
 	else:
 		download_from_archive(app.name)
 
@@ -313,4 +352,3 @@ def get_download(app: APPLICATION, archive: bool):
 #                                 BOTTOM IMPORT                                #
 # ---------------------------------------------------------------------------- #
 main = importlib.import_module('main')
-
