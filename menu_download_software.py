@@ -92,17 +92,21 @@ class MENU_version(MENU):
 
 
 def download_from_archive(file_to_search: str):
-	print("DOWNLOADING FROM ARCHIVE")
+	print("CONNECTING TO ARCHIVE")
 	file_found = False
 
 	try:
 		ftp = ftplib.FTP("tedcharlesbrown.synology.me")
-	except:
-		ftp = ftplib.FTP("192.168.1.100")
-
-	ftp.login("_FTP_", "tedcharlesbrown_ftp")
-
-	files = ftp.nlst()
+		ftp.login("_FTP_", "tedcharlesbrown_ftp")
+		files = ftp.nlst()
+		print("CONECTED VIA PASSIVE FTP")
+	except ftplib.all_errors as e:
+		ftp = ftplib.FTP()
+		ftp.set_pasv(False)
+		ftp.connect("tedcharlesbrown.synology.me")
+		ftp.login("_FTP_", "tedcharlesbrown_ftp")
+		files = ftp.nlst()
+		print("CONECTED VIA ACTIVE FTP")
 
 	versions = 0
 	m_versions = MENU_version("Download Versions", "MULTIPLE VERSIONS FOUND, WHICH VERSION TO DOWNLOAD")
@@ -249,6 +253,7 @@ def find_download_button(soup):
 
 	# print(download_link)
 	return download_link
+
 
 # def get_github(filename: str, owner: str, repo: str):
 #     # define the URL of the GitHub releases page
