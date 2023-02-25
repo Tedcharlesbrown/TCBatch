@@ -10,6 +10,11 @@ import importlib
 #                                  NAME CHANGE                                 #
 # ---------------------------------------------------------------------------- #
 
+def change_computer_name(computer_name: str):
+
+	subprocess.call(['powershell.exe', "Rename-Computer -NewName " + computer_name])
+	return subprocess.check_output(['powershell', 'Rename-Computer', '-NewName', computer_name])
+
 class MENU_name(MENU):
 	def enter(self):
 		print(DIVIDER)

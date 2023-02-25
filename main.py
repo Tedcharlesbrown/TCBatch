@@ -10,8 +10,9 @@ import ipaddress
 
 import pyuac
 
-
 import winshell
+
+import tkinter as tk
 
 from classes import MENU
 from menu_change_name import *
@@ -66,11 +67,12 @@ def main():
 	menu()
 
 
+
 if __name__ == "__main__":
 	if not pyuac.isUserAdmin():
 		print("RE-LAUNCHING AS ADMIN!")
 		time.sleep(1)
 		pyuac.runAsAdmin()
-	else:        
+	# else:        
 		main()  # Already an admin here.
 

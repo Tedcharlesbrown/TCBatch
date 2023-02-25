@@ -16,6 +16,7 @@ from application_list import *
 
 import importlib
 
+
 # ---------------------------------------------------------------------------- #
 #                                   DOWNLOAD                                   #
 # ---------------------------------------------------------------------------- #
@@ -91,10 +92,10 @@ def download_from_archive(file_to_search: str):
 	print("DOWNLOADING FROM ARCHIVE")
 	file_found = False
 
-	try:
-		ftp = ftplib.FTP("tedcharlesbrown.synology.me")
-	except:
-		ftp = ftplib.FTP("192.168.1.100")
+	# try:
+		# ftp = ftplib.FTP("tedcharlesbrown.synology.me")
+	# except:
+	ftp = ftplib.FTP("192.168.1.100")
 
 	ftp.login("_FTP_","tedcharlesbrown_ftp")
 	# ftp.cwd("/Application_Installers")
@@ -103,6 +104,8 @@ def download_from_archive(file_to_search: str):
 
 	versions = 0
 	m_versions = MENU_version("Download Versions", "MULTIPLE VERSIONS FOUND, WHICH VERSION TO DOWNLOAD")
+
+
 
 	for file in files:
 		if file.lower().replace("-","").find(file_to_search.lower().replace("-","")[:-4]) != -1:
