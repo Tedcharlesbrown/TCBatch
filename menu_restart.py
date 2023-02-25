@@ -53,7 +53,7 @@ class MENU_restart(MENU):
         
         # Restart the computer
         print("RESTARTING")
-        # os.system("shutdown /r")
+        os.system("shutdown /r")
 
 
 # ---------------------------------------------------------------------------- #

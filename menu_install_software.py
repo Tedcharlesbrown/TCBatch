@@ -24,10 +24,9 @@ class MENU_software(MENU):
 		else:
 			print("TYPE THE NUMBER OF THE SOFTWARE YOU WOULD LIKE TO INSTAll, OR PRESS 'ENTER' TO CANCEL")
 			for i, app in enumerate(application_install_list):
-				print(str(i) + ": " + "\"" + app + "\"")
+				print(str(i + 1) + ": " + "\"" + app + "\"")
 			print(DIVIDER)
 
-			# print(APPLICATION_INSTALL_LIST)
 			user_input = input()
 			if user_input == "":
 				print("GOING BACK TO MAIN MENU")
@@ -36,16 +35,31 @@ class MENU_software(MENU):
 			else:
 				self.install_applications(user_input, application_install_list)
 
+
 	def install_applications(self, user_input: str, apps: list):
+		if user_input == "0" or user_input.lower() == "all":
+			print(apps)
+			user_input = ""
+			for i in range(len(apps)):
+				user_input += str(i + 1) + ","	
+				
 		user_input = user_input.split(",")
-		# print(user_input)
 		for i, n in enumerate(user_input):
 			if n.isdigit():
-				n = int(n)
+				n = int(n) - 1
 				if n <= len(apps):
-					print(f"INSTALLING: {apps[n]}")
-					subprocess.call([APPLICATION_FOLDER_PATH + apps[n]])
-					# time.sleep(1)
+					app_path = APPLICATION_FOLDER_PATH + apps[n]
+					print(f"INSTALLING: {app_path}")
+					if app_path.endswith('.msi'):
+						# install MSI file using msiexec
+						subprocess.call(['start', app_path], shell=True)
+					elif app_path.endswith('.exe'):
+						# install EXE file using subprocess
+						subprocess.call([app_path])
+					else:
+						print("UNKNOWN FILE TYPE")
+						continue
+
 					if i < len(user_input):
 						print("INSTALL COMPLETE")
 						time.sleep(0.5)
@@ -56,7 +70,9 @@ class MENU_software(MENU):
 					print("INPUT IS NOT VALID")
 			else:
 				print("INPUT IS NOT VALID")
+
 		main.menu()
+
 
 # ---------------------------------------------------------------------------- #
 #                                 BOTTOM IMPORT                                #

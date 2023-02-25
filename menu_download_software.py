@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import ftplib
 import threading
 import os
+from tqdm import tqdm
 from urllib.parse import urlparse
 
 from classes import MENU
@@ -38,23 +39,24 @@ class MENU_download(MENU):
 	def wait_for_input(self):
 		intial_user_input = input()
 		user_input = intial_user_input
-		
 
-		if user_input == "":
-			pass
-		else:
-			user_input = intial_user_input.split(",")
-			for number in user_input:
-				archive = False
-				# CHECK TO SEE IF '/' IS INCLUDED TO DOWNLOAD DIRECT FROM ARCHIVE
-				if "/" in number:
-					archive = True
-					number = number[:-1]
-					
-				if number.isdigit():
-					number = int(number) - 1
+		if user_input.lower() == "tcb":
+			print(DIVIDER)
+			print("PASSWORD: TCB Address (numbers only)")
+			print("http://gofile.me/70auI/6qt31duqE")
+		elif user_input:
+			numbers = []
+			for item in user_input.split(","):
+				if "-" in item:
+					start, end = item.split("-")
+					numbers.extend(range(int(start), int(end) + 1))
+				elif item.isdigit():
+					numbers.append(int(item) - 1)
 
-				get_download(self.options_list[number],archive)
+			numbers = sorted(set(numbers))
+			for number in numbers:
+				get_download(self.options_list[number])
+
 
 		main.menu()
 
@@ -87,49 +89,71 @@ class MENU_version(MENU):
 		print(DIVIDER)
 		main.menu()
 
+# def download_from_hidden():
+# 	try:
+# 		ftp = ftplib.FTP("192.168.1.100")
+# 	except:
+# 		ftp = ftplib.FTP("tedcharlesbrown.synology.me")
+
+# 	ftp.login("_FTP_", "tedcharlesbrown_ftp")
+# 	ftp.cwd("/__hidden__")
+
+# 	files = ftp.nlst()
+
+# 	for file in files:
+# 		print(file)
+
 def download_from_archive(file_to_search: str):
-	print("DOWNLOADING FROM ARCHIVE")
-	file_found = False
+    print("DOWNLOADING FROM ARCHIVE")
+    file_found = False
 
-	try:
-		ftp = ftplib.FTP("tedcharlesbrown.synology.me")
-	except:
-		ftp = ftplib.FTP("192.168.1.100")
+    try:
+        ftp = ftplib.FTP("192.168.1.100")
+    except:
+        ftp = ftplib.FTP("tedcharlesbrown.synology.me")
 
-	ftp.login("_FTP_","tedcharlesbrown_ftp")
-	# ftp.cwd("/Application_Installers")
+    ftp.login("_FTP_", "tedcharlesbrown_ftp")
+    # ftp.cwd("/Application_Installers")
 
-	files = ftp.nlst()
+    files = ftp.nlst()
 
-	versions = 0
-	m_versions = MENU_version("Download Versions", "MULTIPLE VERSIONS FOUND, WHICH VERSION TO DOWNLOAD")
+    versions = 0
+    m_versions = MENU_version("Download Versions", "MULTIPLE VERSIONS FOUND, WHICH VERSION TO DOWNLOAD")
 
-	for file in files:
-		if file.lower().replace("-","").find(file_to_search.lower().replace("-","")[:-4]) != -1:
-			file_to_download = file
-			file_found = True
-			m_versions.add_option(file)
-			versions += 1
+    for file in files:
+        if file.lower().replace("-", "").find(file_to_search.lower().replace("-", "")[:-4]) != -1:
+            file_to_download = file
+            file_found = True
+            m_versions.add_option(file)
+            versions += 1
 
-	if file_found:
-		if versions > 1:
-			m_versions.enter()
-			file_to_download = m_versions.wait_for_input()
-		# Download the file
-		with open(APPLICATION_FOLDER_PATH + file_to_download, 'wb') as f:
-			print(f"FOUND {file_to_download} FROM ARCHIVE, PLEASE WAIT")
-			ftp.retrbinary(f'RETR {file_to_download}', f.write) 
-			print("DOWNLOAD COMPLETE")
-		
-	else:
-		print("NOT IN ARCHIVE")
+    if file_found:
+        if versions > 1:
+            m_versions.enter()
+            file_to_download = m_versions.wait_for_input()
 
-	print(DIVIDER)
-	ftp.quit()
+        # Download the file
+        with open(APPLICATION_FOLDER_PATH + file_to_download, 'wb') as f:
+            print(f"FOUND {file_to_download} FROM ARCHIVE, PLEASE WAIT")
+            file_size = ftp.size(file_to_download)
+            progress = tqdm(total=file_size, unit='B', unit_scale=True)
+            def progress_callback(data):
+                progress.update(len(data))
+                f.write(data)
+            ftp.retrbinary(f'RETR {file_to_download}', progress_callback)
+            progress.close()
+            print("DOWNLOAD COMPLETE")
+
+    else:
+        print("NOT IN ARCHIVE")
+
+    print(DIVIDER)
+    ftp.quit()
+
 
 def parse_html_for_link(app: APPLICATION, verbose: bool):
 
-	# print("TEST")
+	
 	if type(app) == str:
 		link = app
 	else:
@@ -213,59 +237,45 @@ def parse_html_for_link(app: APPLICATION, verbose: bool):
 #         get_download(filename,exe_url)
 
 def download_from_web(response, app):
+    if isinstance(app, str):
+        name = app
+    else:
+        name = app.name
 
-	if type(app) == str:
-		name = app
-	else:
-		name = app.name
-	
-	if response.headers.get("Content-Disposition"):
-		# Get the value of the Content-Disposition header
-		content_disposition = response.headers.get("Content-Disposition")
-		# Split the value by ";" to get a list of key-value pairs
-		content_disposition = content_disposition.replace("\"","")
-		index_start = content_disposition.find("filename=") + 9
-		name = content_disposition[index_start:]
-	elif ".exe" in response.url or ".msi" in response.url:
-		index_start = response.url.rfind("/")
-		name = response.url[index_start:]
+    if response.headers.get("Content-Disposition"):
+        content_disposition = response.headers.get("Content-Disposition")
+        content_disposition = content_disposition.replace("\"", "")
+        index_start = content_disposition.find("filename=") + 9
+        name = content_disposition[index_start:]
+    elif ".exe" in response.url or ".msi" in response.url:
+        index_start = response.url.rfind("/")
+        name = response.url[index_start:]
 
+    if response.status_code == 200:
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
 
-	if response.status_code == 200:
-		# get the total size of the file
-		total_size = int(response.headers.get('content-length', 0))
-		# initialize a variable to store the number of bytes downloaded so far
-		downloaded = 0
-		# initialize a variable to store the last progress that was printed
-		last_progress = -1
-		
-		print(DIVIDER)
+        print(DIVIDER)
 
-		with open(APPLICATION_FOLDER_PATH + name,'wb') as f:
-			for data in response.iter_content(chunk_size=4096):
-				# update the number of bytes downloaded
-				downloaded += len(data)
-				# write the data to the file
-				f.write(data)
-				# check if the total size is known
-				if total_size > 0:
-					# calculate the download progress as a percentage
-					progress = int(downloaded / total_size * 100)
-					# only print the progress if it is a multiple of 10 and if it is different from the last progress that was printed
-					if progress % 25 == 0 and progress != last_progress:
-						print(f'Download progress: {(downloaded / 1e+6):.2f} Megabytes of {(total_size / 1e+6):.2f}, [ {progress}% ]')
-						last_progress = progress
-	
-	else:
-		print("Error downloading file:", response.status_code)
-		download_from_archive(app.name)
+        with open(APPLICATION_FOLDER_PATH + name, 'wb') as f:
+            for data in tqdm(response.iter_content(chunk_size=4096),
+                             total=total_size // 4096 + 1,
+                             unit='B', unit_scale=True, desc=f'Downloading {name}'):
+                downloaded += len(data)
+                f.write(data)
 
-	print(DIVIDER)
+        print("Download complete")
+    else:
+        print("Error downloading file:", response.status_code)
+        download_from_archive(app.name)
 
-def get_download(app: APPLICATION, archive: bool):
+    print(DIVIDER)
+
+# def get_download(app: APPLICATION, archive: bool):
+def get_download(app: APPLICATION):
 	print(f"DOWNLOADING: {app.display}")
 
-	if app.link == "False" or archive:
+	if app.link == "False":
 		pass
 	elif parse_html_for_link(app, False):
 		# print("ATTEMPTING TO GET FROM INTERNET")
