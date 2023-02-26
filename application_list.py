@@ -2,6 +2,7 @@ from constants import *
 from classes import APPLICATION
 
 APPLICATION_DOWNLOAD_LIST = [
+    
     # ------------------------------------- A ------------------------------------ #
     APPLICATION("Artnetominator","Artnetominator.msi", "https://www.lightjams.com/artnetominator/artnetominator.msi"),
     # ------------------------------------- B ------------------------------------ #
@@ -70,6 +71,7 @@ APPLICATION_DOWNLOAD_LIST = [
     # ------------------------------------- Z ------------------------------------ #
 
 
+    APPLICATION("Custom Scripts","", "http://gofile.me/70auI/6qt31duqE"),
 ]
 
 

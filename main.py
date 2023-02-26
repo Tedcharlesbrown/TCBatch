@@ -7,6 +7,7 @@ import subprocess
 import msvcrt
 import time
 import ipaddress
+import threading
 
 import pyuac
 
@@ -14,56 +15,26 @@ import questionary
 from questionary import Style
 from questionary import Validator, ValidationError, prompt
 
+from questions import ask_select
+from questions import ask_checkbox
+from questions import ask_text
+from questions import custom_style
+
 
 import winshell
 
 from classes import MENU
 from menu_change_name import *
+
 from change_ip import list_network_adapters
 from change_ip import set_network_adapter
 
-from menu_download_software import *
+from application_list import APPLICATION_DOWNLOAD_LIST
+from download_software import get_download
 
-from menu_install_software import *
-from menu_symlink import *
-from menu_restart import *
+from install_software import install_applications
 
 from constants import *
-
-custom_style = Style([
-    ('qmark', 'fg:#673ab7 bold'),       # token in front of the question
-    ('question', 'bold'),               # question text
-    # ('answer', 'fg:#f44336 bold'),      # submitted answer text behind the question
-    ('answer', 'fg:#039300 bold'),      # submitted answer text behind the question
-    ('pointer', 'fg:#673ab7 bold'),     # pointer used in select and checkbox prompts
-    # ('highlighted', 'fg:#673ab7 bold'), # pointed-at choice in select and checkbox prompts
-    ('highlighted', 'fg:#7000A9 bold'), # pointed-at choice in select and checkbox prompts
-    ('selected', 'fg:#cc5454'),         # style for a selected item of a checkbox
-    ('separator', 'fg:#cc5454'),        # separator in lists
-    ('instruction', ''),                # user instructions for select, rawselect, checkbox
-    ('text', ''),                       # plain text
-    ('disabled', 'fg:#858585 italic')   # disabled choices for select and checkbox prompts
-])
-	
-def ask_select(message: str, choices: list, return_index: bool):
-
-	answer = questionary.select(
-    f"{message}\n",
-    qmark="",
-    instruction=" ",
-    style=custom_style,
-    choices=choices,
-	).ask()
-
-	if return_index:
-		for i, choice in enumerate(choices):
-			if answer == choice:
-				return(i)
-	else:
-		return answer
-
-def ask_text(message: str):
-	return questionary.text(message,qmark="",style=custom_style).ask()
 
 
 # ---------------------------------------------------------------------------- #
@@ -80,7 +51,7 @@ def folder_application_init():
 # ---------------------------------------------------------------------------- #
 
 def menu_main():
-	choices = ["Change Computer Name", "Change IP Addresses", "Download Software", "Install Software", "Create Symlink Folder", "Restart Computer"]
+	choices = ["Change Computer Name", "Change IP Addresses", "Download Software", "Install Software", "Create Startup Symlink Folder", "Restart Computer"]
 
 	match ask_select(APP_NAME,choices,True):
 		case 0:
@@ -89,11 +60,18 @@ def menu_main():
 			menu_change_ip_address()
 		case 2:
 			menu_download_software()
+		case 3:
+			menu_install_software()
+		case 4:
+			menu_startup_symlink()
+		case 5:
+			menu_restart_computer()
 
 
 def menu_change_computer_name():
 	user_input = questionary.text(
-	f"{ASCII_COMPUTER_NAME}\nTYPE NEW NAME AND PRESS 'ENTER', OR PRESS 'ENTER' TO CANCEL\nCURRENT COMPUTER NAME = " + "'" + platform.node() + "'\n\n",
+	f"{ASCII_COMPUTER_NAME}\nCURRENT COMPUTER NAME = " + "'" + platform.node() + "'",
+	instruction="\ntype new name and press <enter>, or press <enter> to cancel\n",
 	qmark="",
 	style=custom_style
 	).ask()
@@ -144,7 +122,80 @@ def menu_change_ip_address():
 
 
 def menu_download_software():
-	pass
+	choices = []
+	for application in APPLICATION_DOWNLOAD_LIST:
+		choices.append(application.display)
+	
+	get_download(ask_checkbox(ASCII_DOWNLOAD,choices,False))
+
+	menu_main()
+
+def menu_install_software():
+	application_install_list = os.listdir(APPLICATION_FOLDER_PATH)
+	if len(application_install_list) == 0:
+		print("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!")
+	else:
+		install_applications(ask_checkbox(ASCII_SOFTWARE, application_install_list,False))
+
+	menu_main()
+
+def menu_startup_symlink():
+	print(DIVIDER)
+	print(ASCII_SYMLINK)
+	print(DIVIDER)
+	print("CREATING STARTUP SYMLINK FOLDER")
+	time.sleep(2)
+	try:
+		os.symlink(PATH_STARTUP_FOLDER,"Startup_Symlink")
+	except:
+		print("COULD NOT CREATE STARTUP FOLDER, CHECK IF ALREADY EXISTS?")
+		time.sleep(1)
+
+	menu_main()
+
+def menu_restart_computer():
+	global cancel_restart_flag
+	print("RESTARTING COMPUTER IN 5 SECONDS, PRESS 'ENTER' TO CANCEL")
+	
+	# Create a flag variable to cancel the thread
+	cancel_restart_flag = False
+	
+	# Start a new thread to restart the computer
+	t = threading.Thread(target=restart_computer)
+	t.start()
+
+	# Wait for user input
+	user_input = input()
+	if user_input == "":
+		# Cancel the restart
+		cancel_restart_flag = True
+		print("RESTART CANCELLED")
+		print(DIVIDER)
+		time.sleep(1)
+
+	else:
+		# Restart the computer
+		t.join()
+	
+
+def restart_computer():
+	global cancel_restart_flag
+	timeout = 5
+	time.sleep(1)
+	while timeout > 0:
+		# Check the flag and exit if necessary
+		if cancel_restart_flag:
+			return
+		print(timeout)
+		timeout -= 1
+		time.sleep(1)
+	
+	# Restart the computer
+	print("RESTARTING")
+	# os.system("shutdown /r")
+
+
+
 
 # ---------------------------------------------------------------------------- #
 #                                     MAIN                                     #
