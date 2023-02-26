@@ -8,6 +8,7 @@ import ftplib
 import threading
 import os
 from tqdm import tqdm
+import webbrowser
 from urllib.parse import urlparse
 
 from classes import MENU
@@ -43,7 +44,8 @@ class MENU_download(MENU):
 		if user_input.lower() == "tcb":
 			print(DIVIDER)
 			print("PASSWORD: TCB Address (numbers only)")
-			print("http://gofile.me/70auI/6qt31duqE")
+			# print("http://gofile.me/70auI/6qt31duqE")
+			webbrowser.open("http://gofile.me/70auI/6qt31duqE", new=0, autoraise=True)
 		elif user_input:
 			numbers = []
 			for item in user_input.split(","):

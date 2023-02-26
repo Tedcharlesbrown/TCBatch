@@ -10,6 +10,8 @@ import ipaddress
 
 import pyuac
 
+import questionary
+
 
 import winshell
 
@@ -62,8 +64,8 @@ def menu():
 # ---------------------------------------------------------------------------- #
 
 def main():
-	folder_application_init()
-	menu()
+	# folder_application_init()
+	# menu()
 
 
 if __name__ == "__main__":
