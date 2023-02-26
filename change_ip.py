@@ -22,7 +22,8 @@ def list_network_adapters() -> list:
 				adapter = adapter[1].split(":")
 
 				# Add the adapter name to the list of interfaces
-				interfaces.append(adapter[0])
+				if adapter[0].find("Tailscale") == -1 and adapter[0].find("Bluetooth") == -1 and adapter[0].find("Local Area Connection") == -1:
+					interfaces.append(adapter[0])
 
 		# Return the list of interfaces
 		return interfaces
