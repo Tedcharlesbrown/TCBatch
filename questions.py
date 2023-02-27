@@ -20,7 +20,7 @@ custom_style = Style([
 def ask_select(message: str, choices: list, return_index: bool):
 
 	answer = questionary.select(
-    f"{message}\n",
+    f"{message}",
     qmark="",
     instruction="use arrow keys and <enter> to select",
     style=custom_style,
@@ -36,7 +36,7 @@ def ask_select(message: str, choices: list, return_index: bool):
 	
 def ask_checkbox(message: str, choices: list, return_index: bool):
 	answer = questionary.checkbox(
-	f"{message}\n",
+	f"{message}",
 	qmark="",
     style=custom_style,
 	choices=choices
@@ -55,3 +55,17 @@ def ask_checkbox(message: str, choices: list, return_index: bool):
 
 def ask_text(message: str):
 	return questionary.text(message,qmark="",style=custom_style).ask()
+
+def ask_name(message: str):
+	return questionary.text(
+	message,
+	instruction="\ntype new name and press <enter>, or press <enter> to cancel\n",
+	qmark="",
+	style=custom_style
+	).ask()
+
+def print_error(message: str):
+	return questionary.print(message, style="fg:#C00000 bold")
+
+def print_return():
+	return questionary.print("\nreturning to main menu", style="fg:#808080 italic")
