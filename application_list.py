@@ -85,3 +85,31 @@ APPLICATION_DOWNLOAD_LIST = [
 # fSpy
 # Instant Meshes
 # CloneZilla
+
+MICROSOFT_APPLICATION_LIST = [
+    "Microsoft.3DBuilder",
+    "Microsoft.BingWeather",
+    "Microsoft.GetHelp",
+    "Microsoft.Getstarted",
+    "Microsoft.Messaging",
+    "Microsoft.Microsoft3DViewer",
+    "Microsoft.MicrosoftOfficeHub",
+    "Microsoft.MicrosoftSolitaireCollection",
+    "Microsoft.MicrosoftStickyNotes",
+    "Microsoft.MixedReality.Portal",
+    "Microsoft.Office.OneNote",
+    "Microsoft.OneConnect",
+    "Microsoft.People",
+    "Microsoft.ScreenSketch",
+    "Microsoft.SkypeApp",
+    "Microsoft.WindowsAlarms",
+    "Microsoft.WindowsCommunicationsApps",
+    "Microsoft.WindowsFeedbackHub",
+    "Microsoft.WindowsMaps",
+    "Microsoft.WindowsSoundRecorder",
+    "Microsoft.XboxApp",
+    "Microsoft.XboxGameOverlay",
+    "Microsoft.XboxGamingOverlay",
+    "Microsoft.YourPhone",
+    "Microsoft.ZuneMusic",
+    "Microsoft.ZuneVideo"]

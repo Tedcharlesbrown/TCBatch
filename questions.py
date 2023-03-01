@@ -67,5 +67,8 @@ def ask_name(message: str):
 def print_error(message: str):
 	return questionary.print(message, style="fg:#C00000 bold")
 
+def print_hint(message: str):
+	return questionary.print(message, style='fg:#808080 italic')
+
 def print_return():
 	return questionary.print("\nreturning to main menu", style="fg:#808080 italic")

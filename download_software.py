@@ -13,6 +13,7 @@ from constants import *
 from application_list import *
 
 from questions import ask_select
+from questions import print_error
 
 
 def download_from_archive(file_to_search: str):
@@ -20,9 +21,9 @@ def download_from_archive(file_to_search: str):
 	file_found = False
 
 	try:
-		ftp = ftplib.FTP("192.168.1.100")
-	except:
 		ftp = ftplib.FTP("tedcharlesbrown.synology.me")
+	except:
+		ftp = ftplib.FTP("192.168.1.100")
 
 	ftp.login("_FTP_", "tedcharlesbrown_ftp")
 	# ftp.cwd("/Application_Installers")
@@ -184,11 +185,12 @@ def download_from_web(response, app):
 	print(DIVIDER)
 
 def get_download(app_list: list):
+	if len(app_list) == 0:
+		print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
 	for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
 		for selected in app_list:
 			if selected in app.display:
 				app = APPLICATION_DOWNLOAD_LIST[i]
-
 
 				if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
 					print(f"DOWNLOADING: {app.display}")

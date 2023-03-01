@@ -17,12 +17,14 @@ from questions import ask_text
 from questions import ask_name
 from questions import print_error
 from questions import print_return
+from questions import print_hint
 from questions import custom_style
 
 from change_ip import list_network_adapters
 from change_ip import set_network_adapter
 
 from application_list import APPLICATION_DOWNLOAD_LIST
+from application_list import MICROSOFT_APPLICATION_LIST
 from download_software import get_download
 
 from install_software import install_applications
@@ -44,7 +46,40 @@ def folder_application_init():
 # ---------------------------------------------------------------------------- #
 
 def menu_main():
-	choices = ["Change Computer Name", "Change Network Settings", "Download Software", "Install Software", "Create Startup Symlink Folder", "Restart Computer"]
+	# choices = [
+	# "Change Computer Name", 
+	# "Change Network Settings",
+	# "Download Software",
+	# "Install Software",
+	# "Create Startup Symlink Folder",
+	# "Restart Computer"]
+
+	# # WINDOWS BACKUP?
+
+	# match ask_select(APP_NAME,choices,True):
+	# 	case 0:
+	# 		menu_change_computer_name()
+	# 	case 1:
+	# 		menu_change_network()
+	# 	case 2:
+	# 		menu_download_software()
+	# 	case 3:
+	# 		menu_install_software()
+	# 	case 4:
+	# 		menu_startup_symlink()
+	# 	case 5:
+	# 		menu_restart_computer()
+
+	choices = [
+		"Change Computer Name", 
+		"Change Network Settings",
+		"Download Software",
+		"Install Software",
+		"Optimize Windows",
+		"Create Startup Symlink Folder",
+		"Restart Computer"]
+
+	# WINDOWS BACKUP?
 
 	match ask_select(APP_NAME,choices,True):
 		case 0:
@@ -56,10 +91,17 @@ def menu_main():
 		case 3:
 			menu_install_software()
 		case 4:
-			menu_startup_symlink()
+			print_hint("-----credit to Andy Babin-----")
+			menu_optimize_windows()
 		case 5:
+			menu_startup_symlink()
+		case 6:
 			menu_restart_computer()
 
+
+# ---------------------------------------------------------------------------- #
+#                             CHANGE COMPUTER NAME                             #
+# ---------------------------------------------------------------------------- #
 
 def menu_change_computer_name():
 	user_input = ask_name(f"{ASCII_COMPUTER_NAME}\nCURRENT COMPUTER NAME = '{platform.node()}'")
@@ -74,9 +116,18 @@ def menu_change_computer_name():
 	print_return()
 	menu_main()
 
-def menu_change_network():
-	choices = ["Change IP Addresses", "Change Adapter Names", "Add VLANS"]
+# ---------------------------------------------------------------------------- #
+#                                CHANGE NETWORK                                #
+# ---------------------------------------------------------------------------- #
 
+def menu_change_network():
+	choices = [
+		"Change IP Addresses",
+		"Change Adapter Names",
+		"Add VLANS"]
+	
+	choices.append("[cancel]")
+	cancel = choices[-1]
 	match ask_select(ASCII_NETWORK_SETTINGS,choices,True):
 		case 0:
 			menu_change_ip_address()
@@ -84,6 +135,8 @@ def menu_change_network():
 			menu_change_adapter_name()
 		case 2:
 			menu_add_vlans()
+		case cancel:
+			menu_main()
 
 
 def menu_change_ip_address():
@@ -180,6 +233,10 @@ def menu_add_vlans():
 		# input()
 
 
+# ---------------------------------------------------------------------------- #
+#                               DOWNLOAD SOFTWARE                              #
+# ---------------------------------------------------------------------------- #
+
 def menu_download_software():
 	choices = []
 	for application in APPLICATION_DOWNLOAD_LIST:
@@ -189,6 +246,10 @@ def menu_download_software():
 
 	print_return()
 	menu_main()
+
+# ---------------------------------------------------------------------------- #
+#                               INSTALL SOFTWARE                               #
+# ---------------------------------------------------------------------------- #
 
 def menu_install_software():
 	application_install_list = os.listdir(APPLICATION_FOLDER_PATH)
@@ -202,6 +263,49 @@ def menu_install_software():
 	print_return()
 	menu_main()
 
+# ---------------------------------------------------------------------------- #
+#                               OPTIMIZE WINDOWS                               #
+# ---------------------------------------------------------------------------- #
+
+def menu_optimize_windows():
+	choices = [
+	"Remove Windows Applications",
+	"Turn Off Windows Features",
+	"Change Wallpaper",
+	"Power Settings",
+	"Firewall Settings",
+	]
+	choices.append("[cancel]")
+	cancel = choices[-1]
+	
+	match ask_select(ASCII_OPTIMIZE_WINDOWS,choices,True):
+		case 0:
+			menu_remove_windows_apps()
+		case 1:
+			print_error("WARNING, EDITING WINDOWS REGISTRY, PROCEED WITH CAUTION")
+			time.sleep(1)
+		case 2:
+			pass
+		case cancel:
+			pass
+
+	menu_main()
+
+# ------------------------ REMOVE WINDOWS APPLICATIONS ----------------------- #
+def menu_remove_windows_apps():
+	choices = []
+	for application in MICROSOFT_APPLICATION_LIST:
+		choices.append(application[10:])
+	
+	ask_checkbox(ASCII_DOWNLOAD,choices,False)
+
+	print_return()
+	menu_main()
+
+# ---------------------------------------------------------------------------- #
+#                              SET STARTUP SYMLINK                             #
+# ---------------------------------------------------------------------------- #
+
 def menu_startup_symlink():
 	questionary.print("CREATING STARTUP SYMLINK FOLDER", style="bold")
 	try:
@@ -213,6 +317,10 @@ def menu_startup_symlink():
 
 	print_return()
 	menu_main()
+
+# ---------------------------------------------------------------------------- #
+#                               RESTART COMPUTER                               #
+# ---------------------------------------------------------------------------- #
 
 def menu_restart_computer():
 	global cancel_restart_flag
@@ -233,6 +341,7 @@ def menu_restart_computer():
 		print("RESTART CANCELLED")
 		print(DIVIDER)
 		time.sleep(1)
+		menu_main()
 
 	else:
 		# Restart the computer
