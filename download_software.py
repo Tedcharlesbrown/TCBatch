@@ -5,13 +5,9 @@ import requests
 from bs4 import BeautifulSoup
 
 import ftplib
-import threading
-import os
 from tqdm import tqdm
 import webbrowser
 from urllib.parse import urlparse
-
-from classes import MENU
 
 from constants import *
 from application_list import *

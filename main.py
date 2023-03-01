@@ -4,16 +4,12 @@ import os
 import subprocess
 import platform
 import subprocess
-import msvcrt
 import time
-import ipaddress
 import threading
 
 import pyuac
 
 import questionary
-from questionary import Style
-from questionary import Validator, ValidationError, prompt
 
 from questions import ask_select
 from questions import ask_checkbox
@@ -23,15 +19,8 @@ from questions import print_error
 from questions import print_return
 from questions import custom_style
 
-
-import winshell
-
-from classes import MENU
-from menu_change_name import *
-
 from change_ip import list_network_adapters
 from change_ip import set_network_adapter
-import csv
 
 from application_list import APPLICATION_DOWNLOAD_LIST
 from download_software import get_download
@@ -264,7 +253,7 @@ def restart_computer():
 	
 	# Restart the computer
 	print("RESTARTING")
-	# os.system("shutdown /r")
+	os.system("shutdown /r")
 
 
 
