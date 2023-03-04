@@ -9,6 +9,8 @@ import threading
 
 import pyuac
 
+import re
+
 import questionary
 
 from questions import ask_select
@@ -24,10 +26,12 @@ from change_ip import list_network_adapters
 from change_ip import set_network_adapter
 
 from application_list import APPLICATION_DOWNLOAD_LIST
-from application_list import MICROSOFT_APPLICATION_LIST
+from application_list import BLOATWARE_APPLICATION_LIST
 from download_software import get_download
 
 from install_software import install_applications
+
+from optimize_windows import remove_bloatware_apps
 
 from constants import *
 
@@ -136,12 +140,19 @@ def menu_change_network():
 		case 2:
 			menu_add_vlans()
 		case cancel:
+			print_return()
 			menu_main()
 
 
 def menu_change_ip_address():
 	choices = list_network_adapters()
+	choices.append("[cancel]")
+	cancel = choices[-1]
 	interface = ask_select(ASCII_IP_ADDRESS,choices,False)
+
+	if interface == "[cancel]":
+		print_return()
+		menu_main()
 
 	return_string = []
 	primary_dns = ""
@@ -185,6 +196,7 @@ def menu_change_adapter_name():
 	menu_main()
 
 def menu_add_vlans():
+	# https://www.quirkyvirtualization.net/2017/12/29/automating-intel-network-adapter-vlan-configuration/
 	questionary.print(ASCII_VLAN, style="bold")
 	questionary.print("LOOKING FOR VLANS", style="bold")
 
@@ -192,39 +204,56 @@ def menu_add_vlans():
 	if os.path.exists(PATH_INTEL_PROSET):
 		ps_script = r"""Import-Module -Name 'C:\Program Files\Intel\Wired Networking\IntelNetCmdlets\IntelNetCmdlets'
 		Get-IntelNetAdapter"""
-		# Get-IntelNetAdapter | ConvertTo-Csv -NoTypeInformation -Delimiter ';'"""
 
 		result = subprocess.run(['powershell', '-ExecutionPolicy', 'Unrestricted', '-Command', ps_script], capture_output=True, text=True)
+		
+		# print(result)
 
 		if result.returncode != 0:
 			print(result.stderr)
 			exit(1)
 
-		print(result)
+		# Extract the adapter names using regular expressions
+		adapter_result = re.findall(r'\d+:\d+:\d+:\d+\s+(.*)\s+\d+\.\d+\s+Gbps', result.stdout)
+
+		parent_name = []
+		connection_name = []
+		choices = []
+
+		# Print the adapter names
+		for adapter in adapter_result:
+			adapter = adapter.split("  ") 
+			# print(adapter)
+			for name in adapter:
+				if len(name) > 1: #ignore spaces
+					if name[0] == " ": #connection name
+						connection_name.append(name.strip())
+					else:
+						parent_name.append(name.strip())
+					# adapter_list.append(name)
+
+		for i, name in enumerate(parent_name):
+			if i >= len(connection_name):
+				print(f"Adapter already using VLAN: {parent_name[i]}")
+				choices.append(parent_name[i])
+			else:
+				print(f"Found compatable adapter: {connection_name[i]} : {parent_name[i]}")
+				choices.append(connection_name[i])
+		# print(parent_name)
+
+		parent_name = ask_select("VLANS: ",choices,False)
+		vlan_id = ask_text("VLAN ID:")
+		vlan_name = ask_text("VLAN NAME:")
+
 		input()
-		# result = str(result).split(";")
 
-		# valid_adapters = []
+		ps_script = fr"""Import-Module -Name 'C:\Program Files\Intel\Wired Networking\IntelNetCmdlets\IntelNetCmdlets'
+		Add-IntelNetVLAN -ParentName '{parent_name}' -VlanID {vlan_id}
+		Set-IntelNetVLAN -ParentName '{parent_name}' -VLANID {vlan_id} -NewVLANName {vlan_name}
+		"""
 
-		# for choice in choices:
-		# 	if any(choice in res for res in result):
-		# 		valid_adapters.append(choice)
-		
-		# ask_select("FOUND INTEL CAPABLE VLANS",valid_adapters,False)
-		# 4. Type: Add-IntelNetVLAN
-		# 5. copy and paste an adapter name for parent (in this case the 1G adapter)
-		# 6. press enter when prompted for another parent name (this skips adding another)
-		# 7. for VLAN ID, one at a time enter 0 followed by enter, 10 followed by enter, 30, 40, 70 (each followed by enter)
-		# 8. press enter once step 7 is complete
-		# 9. Windows will take a moment and then all of the virtual NICs will appear as new adapters
-		# 10. Set IPs according to Google sheet and label as: A - 0 Control, A - 10 d3Net, A - 30 Automation, A - 40 Artnet, A - 70 Projection
+		result = subprocess.run(['powershell', '-ExecutionPolicy', 'Unrestricted', '-Command', ps_script], capture_output=True, text=True)
 
-		# """
-		# Add-IntelNetVLAN
-		# Add-IntelNetVLAN -InterfaceName "Ethernet" -VlanID 10 -VirtualAdapterName "VLAN10"
-		# Add-IntelNetVLAN -InterfaceName "Ethernet" -VlanID 20 -VirtualAdapterName "VLAN20"
-		# Add-IntelNetVLAN -InterfaceName "Ethernet" -VlanID 30 -VirtualAdapterName "VLAN30"
-		# """
 	else:
 		print_error("NO INTEL VLANS FOUND")
 		time.sleep(1)
@@ -269,7 +298,7 @@ def menu_install_software():
 
 def menu_optimize_windows():
 	choices = [
-	"Remove Windows Applications",
+	"Remove Bloatware Applications",
 	"Turn Off Windows Features",
 	"Change Wallpaper",
 	"Power Settings",
@@ -280,27 +309,75 @@ def menu_optimize_windows():
 	
 	match ask_select(ASCII_OPTIMIZE_WINDOWS,choices,True):
 		case 0:
-			menu_remove_windows_apps()
+			menu_remove_bloatware()
 		case 1:
 			print_error("WARNING, EDITING WINDOWS REGISTRY, PROCEED WITH CAUTION")
 			time.sleep(1)
 		case 2:
-			pass
+			print_error("WARNING, EDITING WINDOWS REGISTRY, PROCEED WITH CAUTION")
+			time.sleep(1)
+			menu_change_background()
 		case cancel:
 			pass
 
+	print_return()
 	menu_main()
 
 # ------------------------ REMOVE WINDOWS APPLICATIONS ----------------------- #
-def menu_remove_windows_apps():
+def menu_remove_bloatware():
 	choices = []
-	for application in MICROSOFT_APPLICATION_LIST:
-		choices.append(application[10:])
+	for application in BLOATWARE_APPLICATION_LIST:
+		choices.append(application.display)
 	
-	ask_checkbox(ASCII_DOWNLOAD,choices,False)
+	remove_bloatware_apps(ask_checkbox(ASCII_DOWNLOAD,choices,True))
 
 	print_return()
 	menu_main()
+
+# ------------------------- CHANGE WINDOWS BACKGROUND ------------------------ #
+def menu_change_background():
+	choices = ["Clear Wallpaper","Set Color"]
+	colors = ["Red","Orange","Yellow","Green","Blue","Purple","Pink","[cancel]"]
+	choices.append("[cancel]")
+	cancel = choices[-1]
+
+	try:
+		match ask_select("CHANGE WALLPAPER",choices,True):
+			case 0:
+					subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v WallPaper /t REG_SZ /d " " /f"""])
+			case 1:
+					match ask_select("SET BACKGROUND COLOR",colors,True):
+						case 0:
+							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 0 0" /f"""])
+						case 1:
+							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 50 0" /f"""])
+						case 2:
+							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 100 0" /f"""])
+						case 3:
+							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "0 100 0" /f"""])
+						case 4:
+							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "0 0 100" /f"""])
+						case 5:
+							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "50 0 100" /f"""])
+						case 6:
+							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 0 75" /f"""])
+						case 6:
+							print_return()
+							menu_main()
+			case cancel:
+				pass
+
+		
+		print_error("WALLPAPER CHANGED, RESTART COMPUTER")
+
+	except:
+		print_error("COULD NOT CHANGE WALLPAPER")
+
+			
+	print_return()
+	menu_main()
+
+
 
 # ---------------------------------------------------------------------------- #
 #                              SET STARTUP SYMLINK                             #

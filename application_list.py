@@ -86,30 +86,58 @@ APPLICATION_DOWNLOAD_LIST = [
 # Instant Meshes
 # CloneZilla
 
-MICROSOFT_APPLICATION_LIST = [
-    "Microsoft.3DBuilder",
-    "Microsoft.BingWeather",
-    "Microsoft.GetHelp",
-    "Microsoft.Getstarted",
-    "Microsoft.Messaging",
-    "Microsoft.Microsoft3DViewer",
-    "Microsoft.MicrosoftOfficeHub",
-    "Microsoft.MicrosoftSolitaireCollection",
-    "Microsoft.MicrosoftStickyNotes",
-    "Microsoft.MixedReality.Portal",
-    "Microsoft.Office.OneNote",
-    "Microsoft.OneConnect",
-    "Microsoft.People",
-    "Microsoft.ScreenSketch",
-    "Microsoft.SkypeApp",
-    "Microsoft.WindowsAlarms",
-    "Microsoft.WindowsCommunicationsApps",
-    "Microsoft.WindowsFeedbackHub",
-    "Microsoft.WindowsMaps",
-    "Microsoft.WindowsSoundRecorder",
-    "Microsoft.XboxApp",
-    "Microsoft.XboxGameOverlay",
-    "Microsoft.XboxGamingOverlay",
-    "Microsoft.YourPhone",
-    "Microsoft.ZuneMusic",
-    "Microsoft.ZuneVideo"]
+BLOATWARE_APPLICATION_LIST = [
+    # ------------------------------------ 123 ----------------------------------- #
+    APPLICATION("3D Builder","Microsoft.3DBuilder", "False"),
+    APPLICATION("3D Viewer","Microsoft.Microsoft3DViewer","False"),
+    # ------------------------------------- A ------------------------------------ #
+    APPLICATION("Windows Alarms","Microsoft.WindowsAlarms","False"),
+    # ------------------------------------- B ------------------------------------ #
+    # ------------------------------------- C ------------------------------------ #
+    APPLICATION("Windows Communications Apps","Microsoft.WindowsCommunicationsApps","False"),
+    # ------------------------------------- E ------------------------------------ #
+    # ------------------------------------- D ------------------------------------ #
+    # ------------------------------------- F ------------------------------------ #
+    APPLICATION("Windows Feedback Hub","Microsoft.WindowsFeedbackHub","False"),
+    # ------------------------------------- G ------------------------------------ #
+    APPLICATION("Get Help","Microsoft.GetHelp","False"),
+    APPLICATION("Get Started","Microsoft.Getstarted","False"),
+    # ------------------------------------- H ------------------------------------ #
+    # ------------------------------------- I ------------------------------------ #
+    # ------------------------------------- J ------------------------------------ #
+    # ------------------------------------- K ------------------------------------ #
+    # ------------------------------------- L ------------------------------------ #
+    # ------------------------------------- M ------------------------------------ #
+    APPLICATION("Windows Maps","Microsoft.WindowsMaps","False"),
+    APPLICATION("Messaging","Microsoft.Messaging","False"),
+    APPLICATION("Mixed Reality Portal","Microsoft.MixedReality.Portal","False"),
+    # ------------------------------------- N ------------------------------------ #
+    # ------------------------------------- O ------------------------------------ #
+    APPLICATION("Office Hub","Microsoft.MicrosoftOfficeHub","False"),
+    APPLICATION("One Connect","Microsoft.OneConnect","False"),
+    APPLICATION("One Note","Microsoft.Office.OneNote","False"),
+    # ------------------------------------- P ------------------------------------ #
+    APPLICATION("People","Microsoft.People","False"),
+    # ------------------------------------- Q ------------------------------------ #
+    # ------------------------------------- R ------------------------------------ #
+    # ------------------------------------- S ------------------------------------ #
+    APPLICATION("Screen Sketch","Microsoft.ScreenSketch","False"),
+    APPLICATION("Skype","Microsoft.SkypeApp","False"),
+    APPLICATION("Solitaire Collection","Microsoft.MicrosoftSolitaireCollection","False"),
+    APPLICATION("Sound Recorder","Microsoft.WindowsSoundRecorder","False"),
+    APPLICATION("Sticky Notes","Microsoft.MicrosoftStickyNotes","False"),
+    # ------------------------------------- T ------------------------------------ #
+    # ------------------------------------- U ------------------------------------ #
+    # ------------------------------------- V ------------------------------------ #
+    # ------------------------------------- W ------------------------------------ #
+    APPLICATION("Weather","Microsoft.BingWeather","False"),
+    # ------------------------------------- X ------------------------------------ #
+    APPLICATION("Xbox App","Microsoft.XboxApp","False"),
+    APPLICATION("Xbox Game Overlay","Microsoft.XboxGameOverlay","False"),
+    APPLICATION("Xbox Gaming Overlay","Microsoft.XboxGamingOverlay","False"),
+    # ------------------------------------- Y ------------------------------------ #
+    APPLICATION("Your Phone","Microsoft.YourPhone","False"),
+    # ------------------------------------- Z ------------------------------------ #
+    APPLICATION("Zune Music","Microsoft.ZuneMusic","False"),
+    APPLICATION("Zune Video","Microsoft.ZuneVideo","False"),
+    ]
