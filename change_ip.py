@@ -1,7 +1,11 @@
 import subprocess
 from constants import *
 
-def list_network_adapters() -> list:
+def list_network_adapters(use_powershell) -> list:
+
+	if not use_powershell:
+
+		# -------------------------------- COMMANDLINE ------------------------------- #
 		# Create an empty list to store the interface names
 		interfaces = []
 
@@ -26,6 +30,30 @@ def list_network_adapters() -> list:
 					interfaces.append(adapter[0])
 
 		# Return the list of interfaces
+
+		return interfaces
+	
+	else:
+
+		# -------------------------------- POWERSHELL -------------------------------- #
+		# Run PowerShell command to get network adapter info
+		cmd = 'Get-NetAdapter | Format-Table -HideTableHeaders Name, InterfaceDescription, -Wrap'
+		adapter_info = subprocess.check_output(['powershell.exe', '-Command', cmd])
+
+		# Convert output to string and split into lines
+		adapter_info = adapter_info.decode('utf-8').split('\n')
+
+		interfaces = []
+
+		# Loop through adapter info and print adapter name and friendly name
+		for line in adapter_info:
+			if line.strip():
+				values = line.strip().split('  ')
+				if values[0].find("Tailscale") == -1 and values[0].find("Bluetooth") == -1 and values[0].find("Local Area Connection") == -1:
+					interfaces.append([values[0].strip(),values[-1].strip()])
+					# Sort the list by the first element of each sublist
+					interfaces = sorted(interfaces, key=lambda x: x[0])
+
 		return interfaces
 
 def default_subnet(ip_input: str):

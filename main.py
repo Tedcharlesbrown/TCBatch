@@ -145,9 +145,8 @@ def menu_change_network():
 
 
 def menu_change_ip_address():
-	choices = list_network_adapters()
+	choices = list_network_adapters(False)
 	choices.append("[cancel]")
-	cancel = choices[-1]
 	interface = ask_select(ASCII_IP_ADDRESS,choices,False)
 
 	if interface == "[cancel]":
