@@ -1,6 +1,7 @@
 import subprocess
 from constants import *
 
+
 def list_network_adapters(use_powershell) -> list:
 
 	if not use_powershell:
@@ -54,7 +55,29 @@ def list_network_adapters(use_powershell) -> list:
 					# Sort the list by the first element of each sublist
 					interfaces = sorted(interfaces, key=lambda x: x[0])
 
-		return interfaces
+		intel_powershell_result = str(list_intel_vlan_adapters())
+		vlan_adapters = []
+
+		for interface in interfaces:
+			# print(interface)
+			if interface[1] in intel_powershell_result:
+				vlan_adapters.append(interface)
+		
+		return vlan_adapters
+
+def list_intel_vlan_adapters():
+
+	ps_script = r"""Import-Module -Name 'C:\Program Files\Intel\Wired Networking\IntelNetCmdlets\IntelNetCmdlets'
+	Get-IntelNetAdapter"""
+
+	result = subprocess.run(['powershell', '-ExecutionPolicy', 'Unrestricted', '-Command', ps_script], capture_output=True, text=True)
+
+	if result.returncode != 0:
+		print(result.stderr)
+		exit(1)
+
+	return result
+
 
 def default_subnet(ip_input: str):
 	# split the IP address by the period character and take the first item in the resulting list

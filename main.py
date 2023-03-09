@@ -178,8 +178,13 @@ def menu_change_ip_address():
 	menu_main()
 
 def menu_change_adapter_name():
-	choices = list_network_adapters()
+	choices = list_network_adapters(False)
+	choices.append("[cancel]")
 	interface = ask_select(ASCII_NETWORK_NAME,choices,False)
+
+	if interface == "[cancel]":
+		print_return()
+		menu_main()
 
 	user_input = ask_name(f"CURRENT ADAPTER NAME = '{interface}'")
 
@@ -199,66 +204,38 @@ def menu_add_vlans():
 	questionary.print(ASCII_VLAN, style="bold")
 	questionary.print("LOOKING FOR VLANS", style="bold")
 
-	choices = list_network_adapters()
 	if os.path.exists(PATH_INTEL_PROSET):
-		ps_script = r"""Import-Module -Name 'C:\Program Files\Intel\Wired Networking\IntelNetCmdlets\IntelNetCmdlets'
-		Get-IntelNetAdapter"""
+		vlan_adapters = list_network_adapters(True)
+		# print(choices)
+		if len(vlan_adapters) > 0:
+			choices = []
 
-		result = subprocess.run(['powershell', '-ExecutionPolicy', 'Unrestricted', '-Command', ps_script], capture_output=True, text=True)
-		
-		# print(result)
+			for adapter in vlan_adapters:
+				choices.append(f"{adapter[0]} : {adapter[1]}")
 
-		if result.returncode != 0:
-			print(result.stderr)
-			exit(1)
+			parent_name = vlan_adapters[ask_select("VLAN ADAPTER: ",choices,True)][1]
+			vlan_id = ask_text("VLAN ID:")
+			vlan_name = ask_text("VLAN NAME:")
 
-		# Extract the adapter names using regular expressions
-		adapter_result = re.findall(r'\d+:\d+:\d+:\d+\s+(.*)\s+\d+\.\d+\s+Gbps', result.stdout)
+			ps_script = fr"""Import-Module -Name 'C:\Program Files\Intel\Wired Networking\IntelNetCmdlets\IntelNetCmdlets'
+			Add-IntelNetVLAN -ParentName '{parent_name}' -VlanID {vlan_id}
+			Set-IntelNetVLAN -ParentName '{parent_name}' -VLANID {vlan_id} -NewVLANName '{vlan_name}'
+			"""
 
-		parent_name = []
-		connection_name = []
-		choices = []
+			result = subprocess.run(['powershell', '-ExecutionPolicy', 'Unrestricted', '-Command', ps_script], capture_output=True, text=True)
 
-		# Print the adapter names
-		for adapter in adapter_result:
-			adapter = adapter.split("  ") 
-			# print(adapter)
-			for name in adapter:
-				if len(name) > 1: #ignore spaces
-					if name[0] == " ": #connection name
-						connection_name.append(name.strip())
-					else:
-						parent_name.append(name.strip())
-					# adapter_list.append(name)
-
-		for i, name in enumerate(parent_name):
-			if i >= len(connection_name):
-				print(f"Adapter already using VLAN: {parent_name[i]}")
-				choices.append(parent_name[i])
-			else:
-				print(f"Found compatable adapter: {connection_name[i]} : {parent_name[i]}")
-				choices.append(connection_name[i])
-		# print(parent_name)
-
-		parent_name = ask_select("VLANS: ",choices,False)
-		vlan_id = ask_text("VLAN ID:")
-		vlan_name = ask_text("VLAN NAME:")
-
-		input()
-
-		ps_script = fr"""Import-Module -Name 'C:\Program Files\Intel\Wired Networking\IntelNetCmdlets\IntelNetCmdlets'
-		Add-IntelNetVLAN -ParentName '{parent_name}' -VlanID {vlan_id}
-		Set-IntelNetVLAN -ParentName '{parent_name}' -VLANID {vlan_id} -NewVLANName {vlan_name}
-		"""
-
-		result = subprocess.run(['powershell', '-ExecutionPolicy', 'Unrestricted', '-Command', ps_script], capture_output=True, text=True)
-
+		else:
+			print_error("NO INTEL VLANS FOUND")
+			time.sleep(1)
+			print_return()
+			menu_main()
 	else:
-		print_error("NO INTEL VLANS FOUND")
+		print_error("INTEL PROSET NOT FOUND")
 		time.sleep(1)
+		print_return()
 		menu_main()
-			
-		# input()
+				
+			# input()
 
 
 # ---------------------------------------------------------------------------- #
