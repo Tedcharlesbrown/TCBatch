@@ -32,6 +32,7 @@ from download_software import get_download
 from install_software import install_applications
 
 from optimize_windows import remove_bloatware_apps
+import ctypes #windows background color
 
 from constants import *
 
@@ -318,13 +319,15 @@ def menu_change_background():
 	cancel = choices[-1]
 
 	try:
+		SPI_SETDESKCOLOR = 48
 		match ask_select("CHANGE WALLPAPER",choices,True):
 			case 0:
 					subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v WallPaper /t REG_SZ /d " " /f"""])
 			case 1:
 					match ask_select("SET BACKGROUND COLOR",colors,True):
 						case 0:
-							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 0 0" /f"""])
+							COLOR = 0x900000
+							# subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 0 0" /f"""])
 						case 1:
 							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 50 0" /f"""])
 						case 2:
@@ -340,6 +343,11 @@ def menu_change_background():
 						case 6:
 							print_return()
 							menu_main()
+					
+					# Call the Windows API function
+					ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKCOLOR, 0, COLOR, 0)
+					
+
 			case cancel:
 				pass
 
