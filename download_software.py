@@ -46,7 +46,7 @@ def download_from_archive(file_to_search: str):
 			file_to_download = ask_select("MULTIPLE VERSIONS FOUND",versions,False)
 
 		# Download the file
-		with open(APPLICATION_FOLDER_PATH + file_to_download, 'wb') as f:
+		with open(UTILITY_FOLDER_PATH + file_to_download, 'wb') as f:
 			print(f"FOUND {file_to_download} FROM ARCHIVE, PLEASE WAIT")
 			file_size = ftp.size(file_to_download)
 			progress = tqdm(total=file_size, unit='B', unit_scale=True)
@@ -170,7 +170,7 @@ def download_from_web(response, app):
 
 		print(DIVIDER)
 
-		with open(APPLICATION_FOLDER_PATH + name, 'wb') as f:
+		with open(UTILITY_FOLDER_PATH + name, 'wb') as f:
 			for data in tqdm(response.iter_content(chunk_size=4096),
 							 total=total_size // 4096 + 1,
 							 unit='B', unit_scale=True, desc=f'Downloading {name}'):

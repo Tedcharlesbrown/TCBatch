@@ -32,7 +32,8 @@ from download_software import get_download
 from install_software import install_applications
 
 from optimize_windows import remove_bloatware_apps
-import ctypes #windows background color
+from background_wallpaper import set_color_background
+from background_wallpaper import set_tcb_background
 
 from constants import *
 
@@ -40,8 +41,8 @@ from constants import *
 # ---------------------------------------------------------------------------- #
 
 def folder_application_init():
-	if not os.path.exists(APPLICATION_FOLDER_PATH):
-		os.makedirs(APPLICATION_FOLDER_PATH)
+	if not os.path.exists(UTILITY_FOLDER_PATH):
+		os.makedirs(UTILITY_FOLDER_PATH)
 		print(DIVIDER)
 		print("APPLICATION INSTALL FOLDER NOT FOUND - CREATING ONE")
 		print(DIVIDER)
@@ -258,7 +259,7 @@ def menu_download_software():
 # ---------------------------------------------------------------------------- #
 
 def menu_install_software():
-	application_install_list = os.listdir(APPLICATION_FOLDER_PATH)
+	application_install_list = os.listdir(UTILITY_FOLDER_PATH)
 	if len(application_install_list) == 0:
 		# questionary.print("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!", style="fg:#C00000 bold")
 		print_error("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!")
@@ -291,8 +292,6 @@ def menu_optimize_windows():
 			print_error("WARNING, EDITING WINDOWS REGISTRY, PROCEED WITH CAUTION")
 			time.sleep(1)
 		case 2:
-			print_error("WARNING, EDITING WINDOWS REGISTRY, PROCEED WITH CAUTION")
-			time.sleep(1)
 			menu_change_background()
 		case cancel:
 			pass
@@ -313,46 +312,39 @@ def menu_remove_bloatware():
 
 # ------------------------- CHANGE WINDOWS BACKGROUND ------------------------ #
 def menu_change_background():
-	choices = ["Clear Wallpaper","Set Color"]
+	choices = ["Clear Wallpaper","Set Color", "Set TCB"]
 	colors = ["Red","Orange","Yellow","Green","Blue","Purple","Pink","[cancel]"]
 	choices.append("[cancel]")
 	cancel = choices[-1]
 
 	try:
-		SPI_SETDESKCOLOR = 48
 		match ask_select("CHANGE WALLPAPER",choices,True):
 			case 0:
-					subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v WallPaper /t REG_SZ /d " " /f"""])
+				set_color_background(0,0,0)
 			case 1:
 					match ask_select("SET BACKGROUND COLOR",colors,True):
 						case 0:
-							COLOR = 0x900000
-							# subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 0 0" /f"""])
+							set_color_background(100,0,0)
 						case 1:
-							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 50 0" /f"""])
+							set_color_background(100,50,0)
 						case 2:
-							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 100 0" /f"""])
+							set_color_background(100,100,0)
 						case 3:
-							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "0 100 0" /f"""])
+							set_color_background(0,100,0)
 						case 4:
-							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "0 0 100" /f"""])
+							set_color_background(0,0,100)
 						case 5:
-							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "50 0 100" /f"""])
+							set_color_background(50,0,100)
 						case 6:
-							subprocess.call(["powershell.exe", fr"""reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v Background /t REG_SZ /d "100 0 75" /f"""])
+							set_color_background(100,0,75)
 						case 6:
 							print_return()
 							menu_main()
+			case 2:
+				set_tcb_background()
 					
-					# Call the Windows API function
-					ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKCOLOR, 0, COLOR, 0)
-					
-
 			case cancel:
 				pass
-
-		
-		print_error("WALLPAPER CHANGED, RESTART COMPUTER")
 
 	except:
 		print_error("COULD NOT CHANGE WALLPAPER")
