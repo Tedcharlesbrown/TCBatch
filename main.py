@@ -32,6 +32,8 @@ from download_software import get_download
 from install_software import install_applications
 
 from optimize_windows import remove_bloatware_apps
+from optimize_windows import set_windows_features
+
 from background_wallpaper import set_color_background
 from background_wallpaper import set_tcb_background
 
@@ -52,30 +54,6 @@ def folder_application_init():
 # ---------------------------------------------------------------------------- #
 
 def menu_main():
-	# choices = [
-	# "Change Computer Name", 
-	# "Change Network Settings",
-	# "Download Software",
-	# "Install Software",
-	# "Create Startup Symlink Folder",
-	# "Restart Computer"]
-
-	# # WINDOWS BACKUP?
-
-	# match ask_select(APP_NAME,choices,True):
-	# 	case 0:
-	# 		menu_change_computer_name()
-	# 	case 1:
-	# 		menu_change_network()
-	# 	case 2:
-	# 		menu_download_software()
-	# 	case 3:
-	# 		menu_install_software()
-	# 	case 4:
-	# 		menu_startup_symlink()
-	# 	case 5:
-	# 		menu_restart_computer()
-
 	choices = [
 		"Change Computer Name", 
 		"Change Network Settings",
@@ -117,7 +95,7 @@ def menu_change_computer_name():
 	else:
 		if questionary.confirm(f"CHANGE NAME TO {user_input}?",qmark="",style=custom_style).ask():
 			questionary.print("CHANGING NAME TO: " + user_input, style="bold")
-			# subprocess.call(['powershell.exe', "Rename-Computer -NewName " + user_input])
+			subprocess.call(['powershell.exe', "Rename-Computer -NewName " + user_input])
 
 	print_return()
 	menu_main()
@@ -260,6 +238,10 @@ def menu_download_software():
 
 def menu_install_software():
 	application_install_list = os.listdir(UTILITY_FOLDER_PATH)
+	for file in application_install_list:
+		if file.endswith(".bmp"):
+			application_install_list.remove(file)
+
 	if len(application_install_list) == 0:
 		# questionary.print("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!", style="fg:#C00000 bold")
 		print_error("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!")
@@ -277,7 +259,7 @@ def menu_install_software():
 def menu_optimize_windows():
 	choices = [
 	"Remove Bloatware Applications",
-	"Turn Off Windows Features",
+	"Set Windows Features",
 	"Change Wallpaper",
 	"Power Settings",
 	"Firewall Settings",
@@ -290,7 +272,7 @@ def menu_optimize_windows():
 			menu_remove_bloatware()
 		case 1:
 			print_error("WARNING, EDITING WINDOWS REGISTRY, PROCEED WITH CAUTION")
-			time.sleep(1)
+			menu_set_windows_features()
 		case 2:
 			menu_change_background()
 		case cancel:
@@ -301,11 +283,16 @@ def menu_optimize_windows():
 
 # ------------------------ REMOVE WINDOWS APPLICATIONS ----------------------- #
 def menu_remove_bloatware():
-	choices = []
-	for application in BLOATWARE_APPLICATION_LIST:
-		choices.append(application.display)
-	
-	remove_bloatware_apps(ask_checkbox(ASCII_DOWNLOAD,choices,True))
+
+	remove_bloatware_apps()
+
+	print_return()
+	menu_main()
+
+# -------------------------- CHANGE WINDOWS SETTINGS ------------------------- #
+def menu_set_windows_features():
+
+	set_windows_features()
 
 	print_return()
 	menu_main()

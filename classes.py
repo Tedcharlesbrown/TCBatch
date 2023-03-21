@@ -48,3 +48,8 @@ class APPLICATION:
 	display: str
 	name: str
 	link: str
+
+@dataclass
+class BLOATWARE:
+	display: str
+	name: list

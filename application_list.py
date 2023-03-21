@@ -1,5 +1,7 @@
 from constants import *
 from classes import APPLICATION
+from classes import BLOATWARE
+
 
 APPLICATION_DOWNLOAD_LIST = [
     
@@ -87,57 +89,36 @@ APPLICATION_DOWNLOAD_LIST = [
 # CloneZilla
 
 BLOATWARE_APPLICATION_LIST = [
-    # ------------------------------------ 123 ----------------------------------- #
-    APPLICATION("3D Builder","Microsoft.3DBuilder", "False"),
-    APPLICATION("3D Viewer","Microsoft.Microsoft3DViewer","False"),
-    # ------------------------------------- A ------------------------------------ #
-    APPLICATION("Windows Alarms","Microsoft.WindowsAlarms","False"),
-    # ------------------------------------- B ------------------------------------ #
-    # ------------------------------------- C ------------------------------------ #
-    APPLICATION("Windows Communications Apps","Microsoft.WindowsCommunicationsApps","False"),
-    # ------------------------------------- E ------------------------------------ #
-    # ------------------------------------- D ------------------------------------ #
-    # ------------------------------------- F ------------------------------------ #
-    APPLICATION("Windows Feedback Hub","Microsoft.WindowsFeedbackHub","False"),
-    # ------------------------------------- G ------------------------------------ #
-    APPLICATION("Get Help","Microsoft.GetHelp","False"),
-    APPLICATION("Get Started","Microsoft.Getstarted","False"),
-    # ------------------------------------- H ------------------------------------ #
-    # ------------------------------------- I ------------------------------------ #
-    # ------------------------------------- J ------------------------------------ #
-    # ------------------------------------- K ------------------------------------ #
-    # ------------------------------------- L ------------------------------------ #
-    # ------------------------------------- M ------------------------------------ #
-    APPLICATION("Windows Maps","Microsoft.WindowsMaps","False"),
-    APPLICATION("Messaging","Microsoft.Messaging","False"),
-    APPLICATION("Mixed Reality Portal","Microsoft.MixedReality.Portal","False"),
-    # ------------------------------------- N ------------------------------------ #
-    # ------------------------------------- O ------------------------------------ #
-    APPLICATION("Office Hub","Microsoft.MicrosoftOfficeHub","False"),
-    APPLICATION("One Connect","Microsoft.OneConnect","False"),
-    APPLICATION("One Note","Microsoft.Office.OneNote","False"),
-    # ------------------------------------- P ------------------------------------ #
-    APPLICATION("People","Microsoft.People","False"),
-    # ------------------------------------- Q ------------------------------------ #
-    # ------------------------------------- R ------------------------------------ #
-    # ------------------------------------- S ------------------------------------ #
-    APPLICATION("Screen Sketch","Microsoft.ScreenSketch","False"),
-    APPLICATION("Skype","Microsoft.SkypeApp","False"),
-    APPLICATION("Solitaire Collection","Microsoft.MicrosoftSolitaireCollection","False"),
-    APPLICATION("Sound Recorder","Microsoft.WindowsSoundRecorder","False"),
-    APPLICATION("Sticky Notes","Microsoft.MicrosoftStickyNotes","False"),
-    # ------------------------------------- T ------------------------------------ #
-    # ------------------------------------- U ------------------------------------ #
-    # ------------------------------------- V ------------------------------------ #
-    # ------------------------------------- W ------------------------------------ #
-    APPLICATION("Weather","Microsoft.BingWeather","False"),
-    # ------------------------------------- X ------------------------------------ #
-    APPLICATION("Xbox App","Microsoft.XboxApp","False"),
-    APPLICATION("Xbox Game Overlay","Microsoft.XboxGameOverlay","False"),
-    APPLICATION("Xbox Gaming Overlay","Microsoft.XboxGamingOverlay","False"),
-    # ------------------------------------- Y ------------------------------------ #
-    APPLICATION("Your Phone","Microsoft.YourPhone","False"),
-    # ------------------------------------- Z ------------------------------------ #
-    APPLICATION("Zune Music","Microsoft.ZuneMusic","False"),
-    APPLICATION("Zune Video","Microsoft.ZuneVideo","False"),
-    ]
+    "Microsoft.3DBuilder",
+    "Microsoft.Microsoft3DViewer",
+    "Microsoft.MixedReality.Portal",
+    "*Microsoft.549981C3F5F10", #CORTANA,
+    "*Microsoft.549981C3F5F10*", #CORTANA,
+    "Microsoft.WindowsCommunicationsApps",
+    "Microsoft.Messaging",
+    "Microsoft.People",
+    "Microsoft.SkypeApp",
+    "Microsoft.YourPhone",
+    "Microsoft.XboxApp",
+    "Microsoft.XboxGameOverlay",
+    "Microsoft.ZuneMusic",
+    "Microsoft.ZuneVideo",
+    "Microsoft.Windows.Photos",
+    "Microsoft.WindowsAlarms",
+    "Microsoft.WindowsMaps",
+    "Microsoft.ScreenSketch",
+    "Microsoft.MicrosoftSolitaireCollection", 
+    "Microsoft.WindowsSoundRecorder",
+    "Microsoft.MicrosoftStickyNotes",
+    "Microsoft.BingWeather",
+    "Microsoft.BingFinance",
+    "Microsoft.BingSports",
+    "*linkedin*",
+    "Microsoft.MicrosoftOfficeHub",
+    "Microsoft.OneConnect",
+    "Microsoft.Office.OneNote",
+    "Microsoft.WindowsFeedbackHub",
+    "Microsoft.GetHelp",
+    "Microsoft.Getstarted",
+    "Microsoft.MSPaint",
+]

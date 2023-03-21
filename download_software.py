@@ -65,8 +65,6 @@ def download_from_archive(file_to_search: str):
 
 
 def parse_html_for_link(app: APPLICATION, verbose: bool):
-
-	
 	if type(app) == str:
 		link = app
 	else:
@@ -187,9 +185,13 @@ def download_from_web(response, app):
 def get_download(app_list: list):
 	if len(app_list) == 0:
 		print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
+
+	print(len(app_list))
+
 	for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
 		for selected in app_list:
 			if selected in app.display:
+				print(selected)
 				app = APPLICATION_DOWNLOAD_LIST[i]
 
 				if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
@@ -201,8 +203,8 @@ def get_download(app_list: list):
 						# print("ATTEMPTING TO GET FROM INTERNET")
 						response = requests.get(parse_html_for_link(app, True), stream=True)
 						download_from_web(response, app)
-						return
-					download_from_archive(app.name)
+					else:
+						download_from_archive(app.name)
 
 				else:
 					print("PASSWORD: TCB ADDRESS (numbers only)")
