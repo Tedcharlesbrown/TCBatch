@@ -1,6 +1,3 @@
-
-
-import requests
 import asyncio
 from pyppeteer import launch
 from bs4 import BeautifulSoup
@@ -8,8 +5,8 @@ import aiohttp
 
 import ftplib
 from tqdm import tqdm
+from tqdm.asyncio import tqdm as async_tqdm
 import webbrowser
-from urllib.parse import urlparse
 from urllib.parse import urljoin
 
 from constants import *
@@ -91,52 +88,82 @@ async def download_from_web(url: str):
         async with session.get(url) as response:
             filename = url.split("/")[-1]
             total_size = int(response.headers.get('Content-Length', 0))
+            progress = async_tqdm(total=total_size, unit='B', unit_scale=True, desc=f'Downloading {filename}')
 
             with open(UTILITY_FOLDER_PATH + filename, 'wb') as f:
-                with tqdm(total=total_size, unit='B', unit_scale=True, desc=f'Downloading {filename}') as pbar:
-                    async for data in response.content.iter_any():
-                        f.write(data)
-                        pbar.update(len(data))
+                async for data in response.content.iter_any():
+                    f.write(data)
+                    progress.update(len(data))
 
-    print("Download complete")
+            progress.close()
 
-async def download_file_from_website(url: str):
-    html = await get_page_html(url)
-    download_link = parse_html_for_link(url, html)
-    if download_link is not None:
-        await download_from_web(download_link)
-    else:
-        print(f"No download link found on {url}")
+    # print("Download complete")
+
+async def find_file_from_website(url: str):
+	try:
+		html = await get_page_html(url)
+		download_link = parse_html_for_link(url, html)
+		if download_link is not None:
+			await download_from_web(download_link)
+			return True
+		else:
+			print(f"No download link found on {url}")
+			return None
+		
+	except:
+		print(f"Could not parse {url}")
+		return None
 
 
-def get_download(app_list: list):
+async def get_download(app_list: list):
 	if len(app_list) == 0:
 		print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
 
 	print(len(app_list))
 
+	download_tasks = []
+	archived_apps = []
+
 	for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
 		for selected in app_list:
 			if selected in app.display:
-				print(selected)
+				# print(selected)
 				app = APPLICATION_DOWNLOAD_LIST[i]
 
 				if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
-					print(f"DOWNLOADING: {app.display}")
 
 					if app.link == "Archive":
-						download_from_archive(app.name)
+						archived_apps.append(app.display)
+						app_list.remove(selected)
 					else:
-						asyncio.run(download_file_from_website((app.link)))
+						print(f"DOWNLOADING: {app.display}")
+						download_tasks.append(find_file_from_website(app.link))
 
-				else:
-					print("PASSWORD: TCB ADDRESS (numbers only)")
-					webbrowser.open("http://gofile.me/70auI/6qt31duqE", new=0, autoraise=True)
+	# execute all tasks concurrently
+	results = (await asyncio.gather(*download_tasks, return_exceptions=True))
+	for result, app in zip(results, app_list):
+		if result is None:
+			print(app_list)
+			print(results)
+			print(f"ADDING TO ARCHIVE {app}")
+			archived_apps.append(app)
+	return archived_apps
 
-		
-def custom_download(link: str):
-	if parse_html_for_link(link, False):
-		response = requests.get(parse_html_for_link(link, True), stream=True)
-		download_from_web(response, "custom.exe")
-	else:
-		print("COULD NOT FETCH DOWNLOAD")
+
+def get_archive(app_list: list):
+	if len(app_list) > 0:
+		for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
+			for selected in app_list:
+				if selected in app.display:
+					# print(selected)
+					app = APPLICATION_DOWNLOAD_LIST[i]
+
+					if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
+
+						# if app.link == "Archive":
+						print(f"DOWNLOADING: {app.display}")
+						download_from_archive(app.name)
+
+					else:
+						print("PASSWORD: TCB ADDRESS (numbers only)")
+						webbrowser.open("http://gofile.me/70auI/6qt31duqE", new=0, autoraise=True)

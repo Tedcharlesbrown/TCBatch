@@ -1,4 +1,3 @@
-
 import os.path
 import os
 import subprocess
@@ -6,6 +5,7 @@ import platform
 import subprocess
 import time
 import threading
+import asyncio
 
 import pyuac
 
@@ -28,6 +28,7 @@ from change_ip import set_network_adapter
 from application_list import APPLICATION_DOWNLOAD_LIST
 from application_list import BLOATWARE_APPLICATION_LIST
 from download_software import get_download
+from download_software import get_archive
 
 from install_software import install_applications
 
@@ -226,8 +227,11 @@ def menu_download_software():
 	choices = []
 	for application in APPLICATION_DOWNLOAD_LIST:
 		choices.append(application.display)
-	
-	get_download(ask_checkbox(ASCII_DOWNLOAD,choices,False))
+
+	apps = ask_checkbox(ASCII_DOWNLOAD,choices,False)
+
+	archived_apps = asyncio.run(get_download(apps))
+	get_archive(archived_apps)
 
 	print_return()
 	menu_main()
