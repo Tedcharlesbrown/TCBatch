@@ -62,7 +62,7 @@ async def find_file_from_website(url: str):
 # asyncio.run(find_file_from_website("https://freefilesync.org/download.php"))
 # asyncio.run(find_file_from_website("https://central.github.com/deployments/desktop/desktop/latest/win32"))
 # asyncio.run(find_file_from_website("http://www.midiox.com/zip/midioxse.exe"))
-asyncio.run(find_file_from_website("https://www.myffmpeg.com/download.html"))
+# asyncio.run(find_file_from_website("https://www.myffmpeg.com/download.html"))
 # asyncio.run(find_file_from_website("https://obsproject.com/download"))
 # asyncio.run(find_file_from_website("https://builds.parsec.app/package/parsec-windows.exe"))
 # asyncio.run(find_file_from_website("https://hexler.net/protokol#windows"))
@@ -79,3 +79,4 @@ asyncio.run(find_file_from_website("https://www.myffmpeg.com/download.html"))
 # asyncio.run(find_file_from_website("https://pixera.one/en/support/downloads"))
 
 
+asyncio.run(find_file_from_website("https://www.paessler.com/download/prtg-download?download=last-stable"))

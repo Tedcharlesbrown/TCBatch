@@ -72,7 +72,7 @@ APPLICATION_DOWNLOAD_LIST = [
     # ------------------------------------- Y ------------------------------------ #
     # ------------------------------------- Z ------------------------------------ #
 
-
+    APPLICATION("Grafana","","Archive"),
     APPLICATION("Custom Scripts","", "http://gofile.me/70auI/6qt31duqE"),
 ]
 

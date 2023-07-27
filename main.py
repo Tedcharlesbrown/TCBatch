@@ -32,6 +32,8 @@ from download_software import get_archive
 
 from install_software import install_applications
 
+from setup_grafana import install_grafana_host
+
 from optimize_windows import remove_bloatware_apps
 from optimize_windows import set_windows_features
 
@@ -56,13 +58,14 @@ def folder_application_init():
 
 def menu_main():
 	choices = [
-		"Change Computer Name", 
-		"Change Network Settings",
-		"Download Software",
-		"Install Software",
-		"Optimize Windows",
-		"Create Startup Symlink Folder",
-		"Restart Computer"]
+		"Change Computer Name",				#0
+		"Change Network Settings",			#1
+		"Download Software",				#2
+		"Install Software",					#3
+		"Setup Grafana",					#4
+		"Optimize Windows",					#5
+		"Create Startup Symlink Folder",	#6
+		"Restart Computer"]					#7
 
 	# WINDOWS BACKUP?
 
@@ -76,11 +79,13 @@ def menu_main():
 		case 3:
 			menu_install_software()
 		case 4:
-			print_hint("-----credit to Andy Babin-----")
-			menu_optimize_windows()
+			menu_setup_grafana()
 		case 5:
-			menu_startup_symlink()
+			# print_hint("-----credit to Andy Babin-----")
+			menu_optimize_windows()
 		case 6:
+			menu_startup_symlink()
+		case 7:
 			menu_restart_computer()
 
 
@@ -218,6 +223,50 @@ def menu_add_vlans():
 				
 			# input()
 
+# ---------------------------------------------------------------------------- #
+#                                 SETUP GRAFANA                                #
+# ---------------------------------------------------------------------------- #
+
+def menu_setup_grafana():
+	choices = [
+		"Setup Host",			#0
+		"Setup Client"]			#1					
+	choices.append("[cancel]")
+	cancel = choices[-1]
+
+	match ask_select("SETUP GRAFANA",choices,True):
+		case 0:
+			menu_setup_grafana_host()
+			# menu_setup_grafana(True)
+		case 1:
+			pass
+			# menu_setup_grafana(False)
+		case cancel:
+			print_return()
+			menu_main()
+
+
+def menu_setup_grafana_host():
+	targets = 0
+	names = []
+	ips = []
+	
+	while True:
+		name = ask_text(f"{targets}: TARGET NAME:")
+		if not name:
+			break
+		names.append(name)
+		ip = ask_text(f"{targets}: {name} IP:")
+		ips.append(ip)
+
+		targets+= 1
+
+
+	print(names)
+	print(ips)
+
+	install_grafana_host(names, ips)
+
 
 # ---------------------------------------------------------------------------- #
 #                               DOWNLOAD SOFTWARE                              #
@@ -279,6 +328,10 @@ def menu_optimize_windows():
 			menu_set_windows_features()
 		case 2:
 			menu_change_background()
+		case 3:
+			pass
+		case 4:
+			pass
 		case cancel:
 			pass
 
