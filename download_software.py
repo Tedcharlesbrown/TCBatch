@@ -1,13 +1,13 @@
-
-
-import requests
-
+import asyncio
+from pyppeteer import launch
 from bs4 import BeautifulSoup
+import aiohttp
 
 import ftplib
 from tqdm import tqdm
+from tqdm.asyncio import tqdm as async_tqdm
 import webbrowser
-from urllib.parse import urlparse
+from urllib.parse import urljoin
 
 from constants import *
 from application_list import *
@@ -63,157 +63,107 @@ def download_from_archive(file_to_search: str):
 	print(DIVIDER)
 	ftp.quit()
 
+async def get_page_html(url: str):
+    """Get page HTML, including content loaded via JavaScript."""
+    browser = await launch()
+    page = await browser.newPage()
+    await page.goto(url)
+    html = await page.content()
+    await browser.close()
+    return html
 
-def parse_html_for_link(app: APPLICATION, verbose: bool):
-	if type(app) == str:
-		link = app
-	else:
-		link = app.link
+def parse_html_for_link(url: str, html: str):
+    """Parse HTML to find download links."""
+    soup = BeautifulSoup(html, 'html.parser')
+    for link in soup.find_all('a', href=True):
+        # Create absolute URL if necessary
+        absolute_link = urljoin(url, link['href'])
+        if ".exe" in absolute_link or ".msi" in absolute_link:
+            return absolute_link
+    return None
 
-	if ".exe" in link or ".msi" in link:
-		download_link = link
-	else:
-		# find the index of the character immediately after the "://" substring
-		index_start = link.find("://") + 3
-		# find the index of the first "/" character that appears after index_start
-		index_end = link.find("/",index_start)
-		# extract the base URL of the website from the download_url string
-		base_url = link[:index_end]
-		
-		# send a request to the website
-		response = requests.get(link)
+async def download_from_web(url: str):
+    """Download a file from a URL."""
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            filename = url.split("/")[-1]
+            total_size = int(response.headers.get('Content-Length', 0))
+            progress = async_tqdm(total=total_size, unit='B', unit_scale=True, desc=f'DOWNLOADING {filename}')
 
-		# parse the HTML content
-		soup = BeautifulSoup(response.text, 'html.parser')
+            with open(UTILITY_FOLDER_PATH + filename, 'wb') as f:
+                async for data in response.content.iter_any():
+                    f.write(data)
+                    progress.update(len(data))
 
-		# convert the parsed HTML content to a string and encode it as UTF-8
-		html = str(soup.prettify().encode('utf-8'))
-		
-		# find the index of the character immediately after the ".exe" substring
-		index_end = -1
-		if html.find(".exe") != -1:
-			index_end = html.find(".exe") + 4
-		elif html.find(".msi") != -1:
-			index_end = html.find(".msi") + 4
+            progress.close()
 
-		# extract the download link from the html string
-		download_link = html[:index_end]
+    # print("Download complete")
 
-		# find the index of the character immediately after the "http" substring
-		index_start = download_link.rfind("http")
-
-		if index_start == -1 or index_start < download_link.rfind(" "):
-			if verbose:
-				print("DIRECT LINK NOT GIVEN, USING BASE")
-			index_start = download_link.rfind("href=") + 6
-			# extract the download name from the html string
-			download_name = html[index_start:index_end]
-			# if download_name does not begin with a '/' add one
-			if download_name[0] != "/":
-				download_name = "/" + download_name
-			# concatenate the base URL and the download name to create the full download link
-			download_link = base_url + download_name
-			
-			# print(index_start,download_name)
-		else:
-			# extract the download name from the html string
-			download_link = html[index_start:index_end]
+async def find_file_from_website(url: str):
 	try:
-		# is_valid_url(download_link)
-		if download_link.find(" ") == -1:
-			if verbose:
-				print(f"DOWNLOADING FROM: {download_link}")
-			return download_link
+		html = await get_page_html(url)
+		download_link = parse_html_for_link(url, html)
+		if download_link is not None:
+			await download_from_web(download_link)
+			return True
 		else:
-			print("COULD NOT PARSE DOWNLOAD LINK")
-			return False
+			print(f"No download link found on {url}")
+			return None
+		
 	except:
-		return False
+		print(f"Could not parse {url}")
+		return None
 
 
-# def get_github(filename: str, owner: str, repo: str):
-#     # define the URL of the GitHub releases page
-#     url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
-
-#     # send a request to the GitHub API to get the latest release
-#     response = requests.get(url)
-
-#     # check the status code of the response
-#     if response.status_code == 200:
-#         # parse the JSON data
-#         data = json.loads(response.text)
-#         # get the URL of the .exe file
-#         exe_url = data['assets'][0]['browser_download_url']
-
-#         get_download(filename,exe_url)
-
-def download_from_web(response, app):
-	if isinstance(app, str):
-		name = app
-	else:
-		name = app.name
-
-	if response.headers.get("Content-Disposition"):
-		content_disposition = response.headers.get("Content-Disposition")
-		content_disposition = content_disposition.replace("\"", "")
-		index_start = content_disposition.find("filename=") + 9
-		name = content_disposition[index_start:]
-	elif ".exe" in response.url or ".msi" in response.url:
-		index_start = response.url.rfind("/")
-		name = response.url[index_start:]
-
-	if response.status_code == 200:
-		total_size = int(response.headers.get('content-length', 0))
-		downloaded = 0
-
-		print(DIVIDER)
-
-		with open(UTILITY_FOLDER_PATH + name, 'wb') as f:
-			for data in tqdm(response.iter_content(chunk_size=4096),
-							 total=total_size // 4096 + 1,
-							 unit='B', unit_scale=True, desc=f'Downloading {name}'):
-				downloaded += len(data)
-				f.write(data)
-
-		print("Download complete")
-	else:
-		print("Error downloading file:", response.status_code)
-		download_from_archive(app.name)
-
-	print(DIVIDER)
-
-def get_download(app_list: list):
+async def get_download(app_list: list):
 	if len(app_list) == 0:
 		print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
 
 	print(len(app_list))
 
+	download_tasks = []
+	archived_apps = []
+
 	for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
 		for selected in app_list:
 			if selected in app.display:
-				print(selected)
+				# print(selected)
 				app = APPLICATION_DOWNLOAD_LIST[i]
 
 				if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
-					print(f"DOWNLOADING: {app.display}")
 
-					if app.link == "False":
-						pass
-					elif parse_html_for_link(app, False):
-						# print("ATTEMPTING TO GET FROM INTERNET")
-						response = requests.get(parse_html_for_link(app, True), stream=True)
-						download_from_web(response, app)
+					if app.link == "Archive":
+						archived_apps.append(app.display)
+						app_list.remove(selected)
 					else:
+						# print(f"DOWNLOADING: {app.display}")
+						download_tasks.append(find_file_from_website(app.link))
+
+	# execute all tasks concurrently
+	results = (await asyncio.gather(*download_tasks, return_exceptions=True))
+	for result, app in zip(results, app_list):
+		if result is None:
+			print(app_list)
+			print(results)
+			print(f"ADDING TO ARCHIVE {app}")
+			archived_apps.append(app)
+	return archived_apps
+
+
+def get_archive(app_list: list):
+	if len(app_list) > 0:
+		for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
+			for selected in app_list:
+				if selected in app.display:
+					# print(selected)
+					app = APPLICATION_DOWNLOAD_LIST[i]
+
+					if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
+
+						# if app.link == "Archive":
+						print(f"DOWNLOADING: {app.display}")
 						download_from_archive(app.name)
 
-				else:
-					print("PASSWORD: TCB ADDRESS (numbers only)")
-					webbrowser.open("http://gofile.me/70auI/6qt31duqE", new=0, autoraise=True)
-
-		
-def custom_download(link: str):
-	if parse_html_for_link(link, False):
-		response = requests.get(parse_html_for_link(link, True), stream=True)
-		download_from_web(response, "custom.exe")
-	else:
-		print("COULD NOT FETCH DOWNLOAD")
+					else:
+						print("PASSWORD: TCB ADDRESS (numbers only)")
+						webbrowser.open("http://gofile.me/70auI/6qt31duqE", new=0, autoraise=True)

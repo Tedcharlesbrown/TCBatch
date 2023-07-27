@@ -1,8 +1,10 @@
 import winshell
+import os
 
 APP_NAME = "TCB - Quick Setup"
 DIVIDER = "----------"
 
+PATH_THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 PATH_STARTUP_FOLDER = winshell.startup()
 PATH_INTEL_PROSET = r'C:\Program Files\Intel\Wired Networking\IntelNetCmdlets'
 

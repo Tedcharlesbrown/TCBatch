@@ -1,4 +1,3 @@
-
 import os.path
 import os
 import subprocess
@@ -6,6 +5,7 @@ import platform
 import subprocess
 import time
 import threading
+import asyncio
 
 import pyuac
 
@@ -28,8 +28,13 @@ from change_ip import set_network_adapter
 from application_list import APPLICATION_DOWNLOAD_LIST
 from application_list import BLOATWARE_APPLICATION_LIST
 from download_software import get_download
+from download_software import get_archive
 
 from install_software import install_applications
+
+from setup_grafana import check_and_download_grafana
+from setup_grafana import install_grafana_host
+from setup_grafana import install_grafana_client
 
 from optimize_windows import remove_bloatware_apps
 from optimize_windows import set_windows_features
@@ -55,13 +60,14 @@ def folder_application_init():
 
 def menu_main():
 	choices = [
-		"Change Computer Name", 
-		"Change Network Settings",
-		"Download Software",
-		"Install Software",
-		"Optimize Windows",
-		"Create Startup Symlink Folder",
-		"Restart Computer"]
+		"Change Computer Name",				#0
+		"Change Network Settings",			#1
+		"Download Software",				#2
+		"Install Software",					#3
+		"Setup Grafana",					#4
+		"Optimize Windows",					#5
+		"Create Startup Symlink Folder",	#6
+		"Restart Computer"]					#7
 
 	# WINDOWS BACKUP?
 
@@ -75,11 +81,13 @@ def menu_main():
 		case 3:
 			menu_install_software()
 		case 4:
-			print_hint("-----credit to Andy Babin-----")
-			menu_optimize_windows()
+			menu_setup_grafana()
 		case 5:
-			menu_startup_symlink()
+			# print_hint("-----credit to Andy Babin-----")
+			menu_optimize_windows()
 		case 6:
+			menu_startup_symlink()
+		case 7:
 			menu_restart_computer()
 
 
@@ -96,6 +104,7 @@ def menu_change_computer_name():
 		if questionary.confirm(f"CHANGE NAME TO {user_input}?",qmark="",style=custom_style).ask():
 			questionary.print("CHANGING NAME TO: " + user_input, style="bold")
 			subprocess.call(['powershell.exe', "Rename-Computer -NewName " + user_input])
+
 
 	print_return()
 	menu_main()
@@ -217,6 +226,50 @@ def menu_add_vlans():
 				
 			# input()
 
+# ---------------------------------------------------------------------------- #
+#                                 SETUP GRAFANA                                #
+# ---------------------------------------------------------------------------- #
+
+def menu_setup_grafana():
+	choices = [
+		"Setup Host",			#0
+		"Setup Client"]			#1					
+	choices.append("[cancel]")
+	cancel = choices[-1]
+
+	match ask_select("SETUP GRAFANA",choices,True):
+		case 0:
+			check_and_download_grafana()
+			print(DIVIDER)
+			menu_setup_grafana_host()
+		case 1:
+			install_grafana_client()
+		case cancel:
+			print_return()
+			menu_main()
+
+	print_return()
+	menu_main()
+
+
+def menu_setup_grafana_host():
+	targets = 0
+	names = []
+	ips = []
+	
+	while True:
+		name = ask_text(f"{targets}: TARGET NAME:")
+		if not name:
+			break
+		names.append(name)
+		ip = ask_text(f"{targets}: {name} IP:")
+		ips.append(ip)
+
+		targets+= 1
+
+
+	install_grafana_host(names, ips)
+
 
 # ---------------------------------------------------------------------------- #
 #                               DOWNLOAD SOFTWARE                              #
@@ -226,8 +279,11 @@ def menu_download_software():
 	choices = []
 	for application in APPLICATION_DOWNLOAD_LIST:
 		choices.append(application.display)
-	
-	get_download(ask_checkbox(ASCII_DOWNLOAD,choices,False))
+
+	apps = ask_checkbox(ASCII_DOWNLOAD,choices,False)
+
+	archived_apps = asyncio.run(get_download(apps))
+	get_archive(archived_apps)
 
 	print_return()
 	menu_main()
@@ -237,10 +293,13 @@ def menu_download_software():
 # ---------------------------------------------------------------------------- #
 
 def menu_install_software():
-	application_install_list = os.listdir(UTILITY_FOLDER_PATH)
-	for file in application_install_list:
-		if file.endswith(".bmp"):
-			application_install_list.remove(file)
+	print(application_install_list)
+	# for file in application_install_list:
+	# 	if file.endswith(".bmp") or "GrafanaSetup" in file:
+	# 		application_install_list.remove(file)
+
+	application_install_list = [file for file in application_install_list if not file.endswith(".bmp") and "GrafanaSetup" not in file]
+
 
 	if len(application_install_list) == 0:
 		# questionary.print("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!", style="fg:#C00000 bold")
@@ -275,6 +334,10 @@ def menu_optimize_windows():
 			menu_set_windows_features()
 		case 2:
 			menu_change_background()
+		case 3:
+			pass
+		case 4:
+			pass
 		case cancel:
 			pass
 

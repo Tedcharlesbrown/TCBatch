@@ -6,30 +6,30 @@ from classes import BLOATWARE
 APPLICATION_DOWNLOAD_LIST = [
     
     # ------------------------------------- A ------------------------------------ #
-    APPLICATION("Artnetominator","Artnetominator.msi", "https://www.lightjams.com/artnetominator/artnetominator.msi"),
+    APPLICATION("Artnetominator","Artnetominator.msi", "https://www.lightjams.com/artnetominator/"),
     # ------------------------------------- B ------------------------------------ #
-    APPLICATION("Barco Event Master","Barco-Event-Master.exe","False"),
+    APPLICATION("Barco Event Master","Barco-Event-Master.exe","Archive"),
     APPLICATION("BGInfo","BGInfo.exe","https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo"),
-    APPLICATION("Bitfocus Companion","Bitfocus-Companion.exe","False"),
-    APPLICATION("Blackmagic Atem","Blackmagic-Atem.msi","False"),
-    APPLICATION("Blackmagic Multiview","Blackmagic-Multiview.msi","False"),
-    APPLICATION("Blackmagic Videohub","Blackmagic-Videohub.msi","False"),
-    APPLICATION("Brompton - Tessera", "Brompton-Tessera.exe","False"),
+    APPLICATION("Bitfocus Companion","Bitfocus-Companion.exe","Archive"),
+    APPLICATION("Blackmagic Atem","Blackmagic-Atem.msi","Archive"),
+    APPLICATION("Blackmagic Multiview","Blackmagic-Multiview.msi","Archive"),
+    APPLICATION("Blackmagic Videohub","Blackmagic-Videohub.msi","Archive"),
+    APPLICATION("Brompton - Tessera", "Brompton-Tessera.exe","Archive"),
     APPLICATION("Bulk Rename Utility","Bulk-Rename-Utility.exe","https://www.bulkrenameutility.co.uk/Download.php"),
     # ------------------------------------- C ------------------------------------ #
     # ------------------------------------- D ------------------------------------ #
-    APPLICATION("D3 Disguise","d3.exe", "False"),
+    APPLICATION("D3 Disguise","d3.exe", "Archive"),
     APPLICATION("Dashboard","Dashboard.exe","https://www.opengear.tv/frame-and-control/control-system/download/"),
     APPLICATION("Decimator Control Software","Decimator-Control-Software.msi","http://decimator.com/DOWNLOADS/DOWNLOADS.html"),
     # ------------------------------------- E ------------------------------------ #
-    APPLICATION("ETC Eos","EOS-Family.exe","False"),
+    APPLICATION("ETC Eos","EOS-Family.exe","Archive"),
     # ------------------------------------- F ------------------------------------ #
     APPLICATION("Free File Sync","Free-File-Sync.exe","https://freefilesync.org/download.php"),
     # ------------------------------------- G ------------------------------------ #
-    APPLICATION("Github","Github.exe","False"),
+    APPLICATION("Github","Github.exe","https://central.github.com/deployments/desktop/desktop/latest/win32"),
     # ------------------------------------- H ------------------------------------ #
     # ------------------------------------- I ------------------------------------ #
-    APPLICATION("Intel PROset","Intel-PROset.exe","False"),
+    APPLICATION("Intel PROset","Intel-PROset.exe","Archive"),
     # ------------------------------------- J ------------------------------------ #
     # ------------------------------------- K ------------------------------------ #
     # ------------------------------------- L ------------------------------------ #
@@ -37,16 +37,16 @@ APPLICATION_DOWNLOAD_LIST = [
     APPLICATION("Midi-Ox","Midi-Ox.exe","http://www.midiox.com/zip/midioxse.exe"),
     APPLICATION("myFFmpeg","myFFmpeg.exe","https://www.myffmpeg.com/download.html"),
     # ------------------------------------- N ------------------------------------ #
-    APPLICATION("NDI Tools","NDI-Tools.exe","False"),
-    APPLICATION("Netgear Switch Discovery", "Netgear-Discovery.exe","False"),
-    APPLICATION("NetSetMan","Net-Set-Man.exe","https://www.netsetman.com/en/freeware"),
+    APPLICATION("NDI Tools","NDI-Tools.exe","Archive"),
+    APPLICATION("Netgear Switch Discovery", "Netgear-Discovery.exe","Archive"),
+    APPLICATION("NetSetMan","Net-Set-Man.exe","Archive"),
     # ------------------------------------- O ------------------------------------ #
     APPLICATION("OBS Studio","OBS-Studio.exe","https://obsproject.com/download"),
     # ------------------------------------- P ------------------------------------ #
-    APPLICATION("Panasonic Easy IP", "Panasonic-EasyIP.zip","False"),
+    APPLICATION("Panasonic Easy IP", "Panasonic-EasyIP.zip","Archive"),
     APPLICATION("Parsec","Parsec.exe","https://builds.parsec.app/package/parsec-windows.exe"),
-    APPLICATION("Pixera Hub","PixeraHub.exe","False"),
-    APPLICATION("Processing","Processing.zip","https://processing.org/download"),
+    APPLICATION("Pixera Hub","PixeraHub.exe","https://pixera.one/en/support/downloads"),
+    APPLICATION("Processing","Processing.zip","Archive"),
     APPLICATION("Protokol","Protokol.exe","https://hexler.net/protokol#windows"),
     APPLICATION("PuTTY","Putty.msi","https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html"),
     APPLICATION("Python","Python.exe","https://www.python.org/downloads/"),
@@ -56,15 +56,15 @@ APPLICATION_DOWNLOAD_LIST = [
     APPLICATION("Reaper","Reaper.exe","https://www.reaper.fm/download.php"),
     APPLICATION("Rufus","Rufus.exe","https://rufus.ie/en/"),
     # ------------------------------------- S ------------------------------------ #
-    APPLICATION("Sublime Text Editor","Sublime.exe","False"),
+    APPLICATION("Sublime Text Editor","Sublime.exe","https://www.sublimetext.com/download_thanks?target=win-x64"),
     # ------------------------------------- T ------------------------------------ #
-    APPLICATION("Tailscale","Tailscale.exe","https://tailscale.com/download"),
+    APPLICATION("Tailscale","Tailscale.exe","https://pkgs.tailscale.com/stable/"),
     APPLICATION("Tight VNC","TightVNC.msi","https://www.tightvnc.com/download.php"),
     APPLICATION("TouchOSC","touchosc.exe","https://hexler.net/touchosc#windows"),
     # ------------------------------------- U ------------------------------------ #
     # ------------------------------------- V ------------------------------------ #
     APPLICATION("vMix","vMix.exe","https://www.vmix.com/software/download.aspx"),
-    APPLICATION("Visual Studio Code", "vscode.exe","https://code.visualstudio.com/download"),
+    APPLICATION("Visual Studio Code", "vscode.exe","Archive"),
     # ------------------------------------- W ------------------------------------ #
     APPLICATION("WinDirStat", "windirstat.exe","https://www.fosshub.com/WinDirStat.html"),
     APPLICATION("Wireshark", "Wireshark.exe","https://www.wireshark.org/download.html"),
@@ -72,7 +72,7 @@ APPLICATION_DOWNLOAD_LIST = [
     # ------------------------------------- Y ------------------------------------ #
     # ------------------------------------- Z ------------------------------------ #
 
-
+    APPLICATION("Grafana","","Archive"),
     APPLICATION("Custom Scripts","", "http://gofile.me/70auI/6qt31duqE"),
 ]
 
@@ -103,7 +103,7 @@ BLOATWARE_APPLICATION_LIST = [
     "Microsoft.XboxGameOverlay",
     "Microsoft.ZuneMusic",
     "Microsoft.ZuneVideo",
-    "Microsoft.Windows.Photos",
+    # "Microsoft.Windows.Photos",
     "Microsoft.WindowsAlarms",
     "Microsoft.WindowsMaps",
     "Microsoft.ScreenSketch",
