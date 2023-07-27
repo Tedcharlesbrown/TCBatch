@@ -88,7 +88,7 @@ async def download_from_web(url: str):
         async with session.get(url) as response:
             filename = url.split("/")[-1]
             total_size = int(response.headers.get('Content-Length', 0))
-            progress = async_tqdm(total=total_size, unit='B', unit_scale=True, desc=f'Downloading {filename}')
+            progress = async_tqdm(total=total_size, unit='B', unit_scale=True, desc=f'DOWNLOADING {filename}')
 
             with open(UTILITY_FOLDER_PATH + filename, 'wb') as f:
                 async for data in response.content.iter_any():
@@ -136,7 +136,7 @@ async def get_download(app_list: list):
 						archived_apps.append(app.display)
 						app_list.remove(selected)
 					else:
-						print(f"DOWNLOADING: {app.display}")
+						# print(f"DOWNLOADING: {app.display}")
 						download_tasks.append(find_file_from_website(app.link))
 
 	# execute all tasks concurrently

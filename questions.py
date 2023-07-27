@@ -6,10 +6,24 @@ custom_style = Style([
     ('qmark', 'fg:#673ab7 bold'),       # token in front of the question
     ('question', 'bold'),               # question text
     # ('answer', 'fg:#f44336 bold'),      # submitted answer text behind the question
-    ('answer', 'fg:#039300 bold'),      # submitted answer text behind the question
+    ('answer', 'fg:#57a8ff bold'),      # submitted answer text behind the question
     ('pointer', 'fg:#673ab7 bold'),     # pointer used in select and checkbox prompts
     # ('highlighted', 'fg:#673ab7 bold'), # pointed-at choice in select and checkbox prompts
     ('highlighted', 'fg:#7000A9 bold'), # pointed-at choice in select and checkbox prompts
+    ('selected', 'fg:#cc5454'),         # style for a selected item of a checkbox
+    ('separator', 'fg:#cc5454'),        # separator in lists
+    ('instruction', 'fg:#808080 italic'),                # user instructions for select, rawselect, checkbox
+    ('text', ''),                       # plain text
+    ('disabled', 'fg:#858585 italic')   # disabled choices for select and checkbox prompts
+])
+custom_menu_style = Style([
+    ('qmark', 'fg:#b28df2 bold'),       # token in front of the question
+    ('question', 'bold'),               # question text
+    ('answer', 'fg:#ff5757 bold'),      # submitted answer text behind the question
+    # ('answer', 'fg:#039300 bold'),      # submitted answer text behind the question
+    ('pointer', 'fg:#b28df2 bold'),     # pointer used in select and checkbox prompts
+    # ('highlighted', 'fg:#673ab7 bold'), # pointed-at choice in select and checkbox prompts
+    ('highlighted', 'fg:#e69532 bold'), # pointed-at choice in select and checkbox prompts
     ('selected', 'fg:#cc5454'),         # style for a selected item of a checkbox
     ('separator', 'fg:#cc5454'),        # separator in lists
     ('instruction', 'fg:#808080 italic'),                # user instructions for select, rawselect, checkbox
@@ -23,7 +37,7 @@ def ask_select(message: str, choices: list, return_index: bool):
     f"{message}",
     qmark="",
     instruction="use arrow keys and <enter> to select",
-    style=custom_style,
+    style=custom_menu_style,
     choices=choices,
 	).ask()
 
@@ -38,7 +52,7 @@ def ask_checkbox(message: str, choices: list, return_index: bool):
 	answer = questionary.checkbox(
 	f"{message}",
 	qmark="",
-    style=custom_style,
+    style=custom_menu_style,
 	choices=choices
 	).ask()
 

@@ -200,5 +200,5 @@ def set_network_adapter(interface: str, addresses: list, primary_dns, secondary_
 		cmd += "\r"
 		cmd += "netsh interface ip add dns \"" + interface + "\" " + parse_dns(secondary_dns, False) + " index=2"
 		
-
 	subprocess.call(["powershell.exe", cmd])
+	

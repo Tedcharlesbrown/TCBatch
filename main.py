@@ -32,7 +32,9 @@ from download_software import get_archive
 
 from install_software import install_applications
 
+from setup_grafana import check_and_download_grafana
 from setup_grafana import install_grafana_host
+from setup_grafana import install_grafana_client
 
 from optimize_windows import remove_bloatware_apps
 from optimize_windows import set_windows_features
@@ -102,6 +104,7 @@ def menu_change_computer_name():
 		if questionary.confirm(f"CHANGE NAME TO {user_input}?",qmark="",style=custom_style).ask():
 			questionary.print("CHANGING NAME TO: " + user_input, style="bold")
 			subprocess.call(['powershell.exe', "Rename-Computer -NewName " + user_input])
+
 
 	print_return()
 	menu_main()
@@ -236,14 +239,17 @@ def menu_setup_grafana():
 
 	match ask_select("SETUP GRAFANA",choices,True):
 		case 0:
+			check_and_download_grafana()
+			print(DIVIDER)
 			menu_setup_grafana_host()
-			# menu_setup_grafana(True)
 		case 1:
-			pass
-			# menu_setup_grafana(False)
+			install_grafana_client()
 		case cancel:
 			print_return()
 			menu_main()
+
+	print_return()
+	menu_main()
 
 
 def menu_setup_grafana_host():
@@ -261,9 +267,6 @@ def menu_setup_grafana_host():
 
 		targets+= 1
 
-
-	print(names)
-	print(ips)
 
 	install_grafana_host(names, ips)
 
@@ -290,10 +293,13 @@ def menu_download_software():
 # ---------------------------------------------------------------------------- #
 
 def menu_install_software():
-	application_install_list = os.listdir(UTILITY_FOLDER_PATH)
-	for file in application_install_list:
-		if file.endswith(".bmp"):
-			application_install_list.remove(file)
+	print(application_install_list)
+	# for file in application_install_list:
+	# 	if file.endswith(".bmp") or "GrafanaSetup" in file:
+	# 		application_install_list.remove(file)
+
+	application_install_list = [file for file in application_install_list if not file.endswith(".bmp") and "GrafanaSetup" not in file]
+
 
 	if len(application_install_list) == 0:
 		# questionary.print("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!", style="fg:#C00000 bold")

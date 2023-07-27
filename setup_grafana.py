@@ -1,7 +1,6 @@
 import os.path
 import os
 
-import pylnk3
 import winshell
 
 import subprocess
@@ -12,11 +11,6 @@ from constants import *
 from application_list import *
 
 from download_software import download_from_archive
-
-from questions import ask_select
-from questions import print_error
-
-# path_to_zip = path_to_grafana + ".zip"
 
 path_to_grafana_setup = os.path.join(PATH_THIS_DIRECTORY,os.path.join("_TCBatch","GrafanaSetup"))
 path_to_grafana_zip = os.path.join(PATH_THIS_DIRECTORY,os.path.join("_TCBatch","GrafanaSetup.zip"))
@@ -31,20 +25,20 @@ path_ohm_graphite = os.path.join(path_to_grafana_setup,"OhmGraphite.exe")
 
 def check_and_download_grafana():
     if os.path.exists(path_to_grafana_setup):
-        print("UNZIP EXISTS")
+        # print("UNZIP EXISTS")
+        pass
     elif os.path.exists(path_to_grafana_zip):
-        print("ZIP FILE EXISTS")
+        print("UNZIPPING GRAFANA SETUP")
         with zipfile.ZipFile(path_to_grafana_zip, 'r') as zip_ref:
             zip_ref.extractall(UTILITY_FOLDER_PATH)
         os.remove(path_to_grafana_zip)
         check_and_download_grafana()
     else:
-        print("GRAFANA DOES NOT EXIST, DOWNLOADING")
+        print("GRAFANA SETUP NOT FOUND")
         download_from_archive("Grafana")
         check_and_download_grafana()
 
 def install_grafana_host(target_names: list, target_ips: list):
-    check_and_download_grafana()
     edit_prometheus_yml(target_names, target_ips)
     # ---------------------------------- GRAFANA --------------------------------- # #3000
     subprocess.call(['start', path_grafana_msi], shell=True) #Install Grafana
@@ -66,19 +60,40 @@ def install_grafana_host(target_names: list, target_ips: list):
     subprocess.call([path_prtg_exe]) #Install PRTG
 
 def edit_prometheus_yml(target_names: list, target_ips: list):
-    static_configs = []
+    yml_prefix = '''# my global config
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
 
-# -------------------------------- YML SYNTAX -------------------------------- #
-# scrape_configs:
-#   - job_name: 'Home Network'
-#     static_configs:
-#       - targets: ['192.168.1.11:9182', '192.168.1.11:4445']
-#         labels:
-#           server_name: 'TCB-Desktop'
-#       - targets: ['192.168.1.11:9182', '192.168.1.11:4445']
-#         labels:
-#           server_name: 'TCB-Desktop'
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
 
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  - job_name: 'Default'
+    static_configs:
+  '''
+    
+    yml_addition = ""
+    
+    for i, target in enumerate(target_names):
+
+        yml_targets = f'''      - targets: ['{target_ips[i]}:9182', '{target_ips[i]}:4445']
+          labels:
+            server_name: '{target}\'
+  '''
+        
+        yml_addition += yml_targets
+
+    with open(path_prometheus_yml, "w") as file:
+        file.write(yml_prefix + yml_addition)
 
 
 #IDK WHY THIS DOESNT WORK, CANT INSTALL AND RUN PROMETHEUS AS SERVICE
@@ -104,5 +119,3 @@ def install_grafana_client():
     subprocess.run(command, shell=True)
 
 
-
-install_grafana_client()
