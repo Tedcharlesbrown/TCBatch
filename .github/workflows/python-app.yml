@@ -33,6 +33,7 @@ jobs:
         pip install pyuac
         pip install bs4
         pip install aiohttp
+        pip install questionary
         if (Test-Path requirements.txt) {pip install -r requirements.txt}
       shell: pwsh
 
