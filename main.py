@@ -66,7 +66,7 @@ def menu_main():
 		"Install Software",					#3
 		"Setup Grafana",					#4
 		"Optimize Windows",					#5
-		"Create Startup Symlink Folder",	#6
+		"Create Startup Shortcut Folder",	#6
 		"Restart Computer"]					#7
 
 	# WINDOWS BACKUP?
@@ -411,11 +411,14 @@ def menu_change_background():
 
 def menu_startup_symlink():
 	questionary.print("CREATING STARTUP SYMLINK FOLDER", style="bold")
-	try:
-		os.symlink(PATH_STARTUP_FOLDER,"Startup_Symlink")
-	except:
-		time.sleep(1)
-		questionary.print("COULD NOT CREATE STARTUP FOLDER, CHECK IF ALREADY EXISTS?", style="fg:#C00000 bold")
+
+	winshell.CreateShortcut(
+    Path=os.path.join(winshell.desktop(), "Startup_Shortcut.lnk"),
+    Target=PATH_STARTUP_FOLDER,
+    Icon=(PATH_STARTUP_FOLDER, 0),
+    Description="Shortcut to Startup"
+)
+
 	time.sleep(1)
 
 	print_return()
