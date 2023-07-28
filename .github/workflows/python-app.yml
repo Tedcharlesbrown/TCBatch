@@ -33,7 +33,9 @@ jobs:
         pip install pyuac
         pip install bs4
         pip install aiohttp
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if (Test-Path requirements.txt) {pip install -r requirements.txt}
+      shell: pwsh
+
     # - name: Lint with flake8
     #   run: |
     #     # stop the build if there are Python syntax errors or undefined names
