@@ -31,7 +31,6 @@ jobs:
         pip install aiohttp
         pip install asyncio
         pip install bs4
-        pip install flake8 pytest
         pip install ftplib
         pip install PIL
         pip install pyinstaller
@@ -59,7 +58,7 @@ jobs:
     #   run: |
     #     pytest
     - name: Create Executable
-      run: pyinstaller --onefile main.py
+      run: pyinstaller --onefile --hidden-import=PIL main.py
 
     - name: Upload Executable
       uses: actions/upload-artifact@v2
