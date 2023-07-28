@@ -34,3 +34,4 @@ jobs:
         name: my_script.exe
         path: dist/my_script.exe
 
+teat
