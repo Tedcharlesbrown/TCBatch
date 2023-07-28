@@ -34,6 +34,8 @@ jobs:
         pip install bs4
         pip install aiohttp
         pip install questionary
+        pip install winshell
+        pip install pywin32
         if (Test-Path requirements.txt) {pip install -r requirements.txt}
       shell: pwsh
 
