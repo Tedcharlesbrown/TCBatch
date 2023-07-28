@@ -43,10 +43,10 @@ jobs:
     #   run: |
     #     pytest
     - name: Create Executable
-      run: pyinstaller --onefile TCBatch main.py
+      run: pyinstaller --onefile main.py
 
     - name: Upload Executable
       uses: actions/upload-artifact@v2
       with:
-        name: TCBatch.exe
-        path: export/TCBatch.exe
+        name: main.exe
+        path: dist/main.exe
