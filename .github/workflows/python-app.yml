@@ -43,7 +43,7 @@ jobs:
     #   run: |
     #     pytest
     - name: Create Executable
-        run: pyinstaller --onefile my_script.py
+      run: pyinstaller --onefile my_script.py
 
     - name: Upload Executable
       uses: actions/upload-artifact@v2
