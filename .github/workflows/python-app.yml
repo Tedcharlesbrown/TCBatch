@@ -28,14 +28,24 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
+        pip install aiohttp
+        pip install asyncio
+        pip install bs4
+        pip install flake8 pytest
+        pip install ftplib
+        pip install PIL
         pip install pyinstaller
         pip install pyppeteer
         pip install pyuac
-        pip install bs4
-        pip install aiohttp
-        pip install questionary
-        pip install winshell
         pip install pywin32
+        pip install questionary
+        pip install tqdm
+        pip install webbrowser
+        pip install win32api
+        pip install winshell
+
+        
+        
         if (Test-Path requirements.txt) {pip install -r requirements.txt}
       shell: pwsh
 
