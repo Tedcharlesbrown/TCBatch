@@ -119,8 +119,6 @@ async def get_download(app_list: list):
 	if len(app_list) == 0:
 		print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
 
-	print(len(app_list))
-
 	download_tasks = []
 	archived_apps = []
 

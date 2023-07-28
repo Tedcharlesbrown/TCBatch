@@ -1,6 +1,6 @@
 import os
 import ctypes
-from PIL import Image
+# from PIL import Image
 import win32api
 
 from constants import *
@@ -14,8 +14,8 @@ def set_color_background(red: int, green: int, blue: int):
     color = (red, green, blue)  # Blue color in RGB format
 
     # Create the image and save it as a BMP file
-    img = Image.new("RGB", size, color)
-    img.save(f"{UTILITY_FOLDER_PATH}background.bmp")
+    # img = Image.new("RGB", size, color)
+    # img.save(f"{UTILITY_FOLDER_PATH}background.bmp")
 
     set_background()
 

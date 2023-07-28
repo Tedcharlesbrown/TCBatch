@@ -12,16 +12,16 @@ from application_list import *
 
 from download_software import download_from_archive
 
-path_to_grafana_setup = os.path.join(PATH_THIS_DIRECTORY,os.path.join("_TCBatch","GrafanaSetup"))
-path_to_grafana_zip = os.path.join(PATH_THIS_DIRECTORY,os.path.join("_TCBatch","GrafanaSetup.zip"))
+path_to_grafana_setup = os.path.join(UTILITY_FOLDER_PATH,"GrafanaSetup")
+path_to_grafana_zip = os.path.join(UTILITY_FOLDER_PATH,"GrafanaSetup.zip")
 
-path_grafana_msi = os.path.join(path_to_grafana_setup,"grafana.msi")
-path_prometheus_exe = os.path.join(path_to_grafana_setup,"prometheus.exe")
-path_prometheus_yml = os.path.join(path_to_grafana_setup,"prometheus.yml")
-path_prtg_exe = os.path.join(path_to_grafana_setup,"prtg.exe")
+path_grafana_msi = os.path.join(UTILITY_FOLDER_PATH,"grafana.msi")
+path_prometheus_exe = os.path.join(UTILITY_FOLDER_PATH,"prometheus.exe")
+path_prometheus_yml = os.path.join(UTILITY_FOLDER_PATH,"prometheus.yml")
+path_prtg_exe = os.path.join(UTILITY_FOLDER_PATH,"prtg.exe")
 
-path_windows_exporter = os.path.join(path_to_grafana_setup,"exporter.msi")
-path_ohm_graphite = os.path.join(path_to_grafana_setup,"OhmGraphite.exe")
+path_windows_exporter = os.path.join(UTILITY_FOLDER_PATH,"exporter.msi")
+path_ohm_graphite = os.path.join(UTILITY_FOLDER_PATH,"OhmGraphite.exe")
 
 def check_and_download_grafana():
     if os.path.exists(path_to_grafana_setup):
