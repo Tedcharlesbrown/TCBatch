@@ -32,7 +32,7 @@ jobs:
         pip install asyncio
         pip install bs4
         pip install ftplib
-        pip install PIL
+        pip install PIL.Image
         pip install pyinstaller
         pip install pyppeteer
         pip install pyuac
@@ -58,7 +58,7 @@ jobs:
     #   run: |
     #     pytest
     - name: Create Executable
-      run: pyinstaller --onefile --hidden-import=PIL main.py
+      run: pyinstaller --onefile main.py
 
     - name: Upload Executable
       uses: actions/upload-artifact@v2
