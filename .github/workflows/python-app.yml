@@ -43,7 +43,7 @@ jobs:
     #   run: |
     #     pytest
     - name: Create Executable
-      run: pyinstaller --onefile main.py
+      run: pyinstaller --onefile TCBatch main.py
 
     - name: Upload Executable
       uses: actions/upload-artifact@v2
