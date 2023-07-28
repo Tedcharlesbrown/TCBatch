@@ -293,7 +293,6 @@ def menu_download_software():
 # ---------------------------------------------------------------------------- #
 
 def menu_install_software():
-	print(application_install_list)
 	# for file in application_install_list:
 	# 	if file.endswith(".bmp") or "GrafanaSetup" in file:
 	# 		application_install_list.remove(file)
