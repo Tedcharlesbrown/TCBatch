@@ -10,7 +10,7 @@ import webbrowser
 from urllib.parse import urljoin
 
 from constants import *
-from application_list import *
+from .application_list import *
 
 from questions import ask_select
 from questions import print_error

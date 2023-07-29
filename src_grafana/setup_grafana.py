@@ -8,9 +8,9 @@ import subprocess
 import zipfile
 
 from constants import *
-from application_list import *
+from src_software.application_list import *
 
-from download_software import download_from_archive
+from src_software.download_software import download_from_archive
 
 
 
