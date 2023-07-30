@@ -30,12 +30,13 @@ def menu_download_software():
 # ---------------------------------------------------------------------------- #
 
 def menu_install_software():
+	application_install_list = os.listdir(UTILITY_FOLDER_PATH)
+
 	# for file in application_install_list:
 	# 	if file.endswith(".bmp") or "GrafanaSetup" in file:
 	# 		application_install_list.remove(file)
-	
-	application_install_list = ""
-	application_install_list = [file for file in application_install_list if not file.endswith(".bmp") and "GrafanaSetup" not in file]
+
+	application_install_list = [file for file in application_install_list if file.endswith(".exe") or file.endswith(".msi")]
 
 
 	if len(application_install_list) == 0:

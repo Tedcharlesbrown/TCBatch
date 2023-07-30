@@ -1,6 +1,7 @@
 from constants import *
 from questions import *
 
+import questionary
 import platform
 import subprocess
 

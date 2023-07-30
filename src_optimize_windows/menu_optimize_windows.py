@@ -44,7 +44,6 @@ def menu_remove_bloatware():
 
 	remove_bloatware_apps()
 
-	print_return()
 	return
 
 # -------------------------- CHANGE WINDOWS SETTINGS ------------------------- #
@@ -52,7 +51,6 @@ def menu_set_windows_features():
 
 	set_windows_features()
 
-	print_return()
 	return
 
 # ------------------------- CHANGE WINDOWS BACKGROUND ------------------------ #

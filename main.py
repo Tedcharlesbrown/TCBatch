@@ -23,9 +23,7 @@ from src_grafana.menu_grafana import menu_setup_grafana
 def folder_application_init():
 	if not os.path.exists(UTILITY_FOLDER_PATH):
 		os.makedirs(UTILITY_FOLDER_PATH)
-		print(DIVIDER)
-		print("APPLICATION INSTALL FOLDER NOT FOUND - CREATING ONE")
-		print(DIVIDER)
+	
 
 # ---------------------------------------------------------------------------- #
 #                                   MAIN MENU                                  #
@@ -85,10 +83,6 @@ def menu_startup_symlink():
 
 	print_return()
 	menu_main()
-
-
-
-
 
 
 # ---------------------------------------------------------------------------- #
