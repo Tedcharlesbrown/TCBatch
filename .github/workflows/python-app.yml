@@ -39,6 +39,7 @@ jobs:
         pip install pyppeteer
         pip install pyuac
         pip install pywin32
+        pip install pyyaml
         pip install questionary
         pip install tqdm
         pip install webbrowser

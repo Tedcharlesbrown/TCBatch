@@ -10,7 +10,7 @@ import webbrowser
 from urllib.parse import urljoin
 
 from constants import *
-from application_list import *
+from .application_list import *
 
 from questions import ask_select
 from questions import print_error
@@ -64,40 +64,40 @@ def download_from_archive(file_to_search: str):
 	ftp.quit()
 
 async def get_page_html(url: str):
-    """Get page HTML, including content loaded via JavaScript."""
-    browser = await launch()
-    page = await browser.newPage()
-    await page.goto(url)
-    html = await page.content()
-    await browser.close()
-    return html
+	"""Get page HTML, including content loaded via JavaScript."""
+	browser = await launch()
+	page = await browser.newPage()
+	await page.goto(url)
+	html = await page.content()
+	await browser.close()
+	return html
 
 def parse_html_for_link(url: str, html: str):
-    """Parse HTML to find download links."""
-    soup = BeautifulSoup(html, 'html.parser')
-    for link in soup.find_all('a', href=True):
-        # Create absolute URL if necessary
-        absolute_link = urljoin(url, link['href'])
-        if ".exe" in absolute_link or ".msi" in absolute_link:
-            return absolute_link
-    return None
+	"""Parse HTML to find download links."""
+	soup = BeautifulSoup(html, 'html.parser')
+	for link in soup.find_all('a', href=True):
+		# Create absolute URL if necessary
+		absolute_link = urljoin(url, link['href'])
+		if ".exe" in absolute_link or ".msi" in absolute_link:
+			return absolute_link
+	return None
 
 async def download_from_web(url: str):
-    """Download a file from a URL."""
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            filename = url.split("/")[-1]
-            total_size = int(response.headers.get('Content-Length', 0))
-            progress = async_tqdm(total=total_size, unit='B', unit_scale=True, desc=f'DOWNLOADING {filename}')
+	"""Download a file from a URL."""
+	async with aiohttp.ClientSession() as session:
+		async with session.get(url) as response:
+			filename = url.split("/")[-1]
+			total_size = int(response.headers.get('Content-Length', 0))
+			progress = async_tqdm(total=total_size, unit='B', unit_scale=True, desc=f'DOWNLOADING {filename}')
 
-            with open(UTILITY_FOLDER_PATH + filename, 'wb') as f:
-                async for data in response.content.iter_any():
-                    f.write(data)
-                    progress.update(len(data))
+			with open(UTILITY_FOLDER_PATH + filename, 'wb') as f:
+				async for data in response.content.iter_any():
+					f.write(data)
+					progress.update(len(data))
 
-            progress.close()
+			progress.close()
 
-    # print("Download complete")
+	# print("Download complete")
 
 async def find_file_from_website(url: str):
 	try:

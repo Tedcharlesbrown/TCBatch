@@ -15,10 +15,19 @@ def install_applications(user_input: str):
 		app_path = UTILITY_FOLDER_PATH + app
 		print(f"INSTALLING: {app_path}")
 		if app_path.endswith('.msi'):
-			# install MSI file using msiexec
-			subprocess.call(['start', app_path], shell=True)
+			install_msi(app_path,"")
 		elif app_path.endswith('.exe'):
-			# install EXE file using subprocess
-			subprocess.call([app_path])
+			install_exe(app_path)
 		else:
 			print("UNKNOWN FILE TYPE")
+
+
+def install_exe(path: str):
+	subprocess.call([path])
+
+def install_msi(path: str, parameters: str):
+	path = path.replace('/', '\\')
+	# os.chdir(os.path.dirname(path)) #UNTESTED WITH NORMAL MSI (NON WINDOWS EXPORTER)
+
+	command = f'msiexec /i "{path}" {parameters}'
+	subprocess.call(command, shell=True)

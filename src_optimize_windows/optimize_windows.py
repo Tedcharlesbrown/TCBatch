@@ -11,7 +11,7 @@
 import subprocess
 from questions import print_error
 from questions import ask_select
-from application_list import BLOATWARE_APPLICATION_LIST
+from src_software.application_list import BLOATWARE_APPLICATION_LIST
 
 # ---------------------------------------------------------------------------- #
 #                               REMOVE BLOATWARE                               #

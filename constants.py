@@ -1,3 +1,5 @@
+import ctypes
+from ctypes import wintypes, windll
 import winshell
 import os
 
