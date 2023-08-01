@@ -8,6 +8,28 @@ from .install_software import install_applications
 import asyncio
 import time
 
+
+def menu_manage_software():
+	choices = [
+		"Download Software",
+		"Install Software"
+	]
+
+	choices.append("[return]")
+	cancel = choices[-1]
+
+	match ask_select("MANAGE SOFTWARE",choices,True):
+		case 0:
+			menu_download_software()
+			menu_manage_software()
+		case 1:
+			menu_install_software()
+			menu_manage_software()
+		case cancel:
+			return
+
+
+
 # ---------------------------------------------------------------------------- #
 #                               DOWNLOAD SOFTWARE                              #
 # ---------------------------------------------------------------------------- #
@@ -32,15 +54,10 @@ def menu_download_software():
 def menu_install_software():
 	application_install_list = os.listdir(UTILITY_FOLDER_PATH)
 
-	# for file in application_install_list:
-	# 	if file.endswith(".bmp") or "GrafanaSetup" in file:
-	# 		application_install_list.remove(file)
-
 	application_install_list = [file for file in application_install_list if file.endswith(".exe") or file.endswith(".msi")]
 
 
 	if len(application_install_list) == 0:
-		# questionary.print("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!", style="fg:#C00000 bold")
 		print_error("NO SOFTWARE FOUND IN 'APPLICATIONS' FOLDER!")
 		time.sleep(1)
 	else:

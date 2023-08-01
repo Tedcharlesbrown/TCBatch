@@ -11,15 +11,19 @@ def menu_change_network():
 		"Change Adapter Names",
 		"Add VLANS"]
 	
-	choices.append("[cancel]")
+	choices.append("[return]")
 	cancel = choices[-1]
+	
 	match ask_select(ASCII_NETWORK_SETTINGS,choices,True):
 		case 0:
 			menu_change_ip_address()
+			menu_change_network()
 		case 1:
 			menu_change_adapter_name()
+			menu_change_network()
 		case 2:
 			menu_add_vlans()
+			menu_change_network()
 		case cancel:
 			print_return()
 			return
@@ -27,10 +31,10 @@ def menu_change_network():
 
 def menu_change_ip_address():
 	choices = list_network_adapters(False)
-	choices.append("[cancel]")
+	choices.append("[return]")
 	interface = ask_select(ASCII_IP_ADDRESS,choices,False)
 
-	if interface == "[cancel]":
+	if interface == "[return]":
 		print_return()
 		return
 
@@ -60,10 +64,10 @@ def menu_change_ip_address():
 
 def menu_change_adapter_name():
 	choices = list_network_adapters(False)
-	choices.append("[cancel]")
+	choices.append("[return]")
 	interface = ask_select(ASCII_NETWORK_NAME,choices,False)
 
-	if interface == "[cancel]":
+	if interface == "[return]":
 		print_return()
 		return
 

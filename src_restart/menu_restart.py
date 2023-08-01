@@ -47,4 +47,4 @@ def restart_computer():
 	
 	# Restart the computer
 	print("RESTARTING")
-	os.system("shutdown /r")
+	os.system("shutdown /r /t 0")

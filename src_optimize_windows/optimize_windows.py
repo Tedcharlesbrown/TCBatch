@@ -9,8 +9,7 @@
 # DISABLE AUTOMATIC UPDATES
 
 import subprocess
-from questions import print_error
-from questions import ask_select
+from questions import *
 from src_software.application_list import BLOATWARE_APPLICATION_LIST
 
 # ---------------------------------------------------------------------------- #
@@ -19,10 +18,13 @@ from src_software.application_list import BLOATWARE_APPLICATION_LIST
 
 
 def remove_bloatware_apps():
-      for app in BLOATWARE_APPLICATION_LIST:
+    for app in BLOATWARE_APPLICATION_LIST:
+        print(f"removing {app}")
         cmd = f"Get-AppxPackage {app} | Remove-AppxPackage"
-              
         subprocess.call(["powershell.exe", cmd])
+
+    remove_news()
+    
 
 # ---------------------------------------------------------------------------- #
 #                           SET WINDOWS FEATURES                               #
@@ -31,53 +33,96 @@ def remove_bloatware_apps():
 def set_windows_features():
     
   choices = [
-    "Disable UAC",
-    "Enable dark mode",
-    "Disable lock screen",
-    "Explorer opens in 'This PC'",
-    "Show file extensions",
-    "Show hidden files",
-    "Remove Search from Task Bar",
-    "Hide Task Bar button",
-    "Disable XBOX DVR capture",
+    "Disable UAC",                  #0
+    "Enable dark mode",             #1
+    "Disable lock screen",          #2
+    "Show file extensions",         #3
+    "Show hidden files",            #4
+    "Remove Search from Task Bar",  #5
+    "Hide Task Bar button",         #6
+    "Disable XBOX DVR capture",     #7
     ]
   
-  choices.append("[cancel]")
-  cancel = choices[-1]
-  
-  match ask_select("SET WINDOWS FEATURES",choices,True):
-    case 0: #UAC
-        # reg add HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 0 /f
-        pass
-    case 1: #DARK MODE
-        # reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize /v AppsUseLightTheme /t REG_DWORD /d 0 /f
-        # reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
-        pass
-    case 2: #LOCK SCREEN
-        # reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Personalization /v NoLockScreen /t REG_DWORD /d 1 /f
-        pass
-    case 3: #THIS PC
-        # reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v LaunchTo /t REG_DWORD /d 1 /f
-        pass
-    case 4: #EXSTENSIONS
-        # reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v HideFileExt /t REG_DWORD /d 0 /f
-        pass
-    case 5: #HIDDEN FILES
-        # reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v Hidden /t REG_DWORD /d 1 /f
-        pass
-    case 6: #SEARCH
-        # reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Search /v SearchboxTaskbarMode /t REG_DWORD /d 0 /f
-        pass
-    case 7: #HIDE TASK BAR
-        # reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v ShowTaskViewButton /t REG_DWORD /d 0 /f
-        pass
-    case 8: #XBOX DVR
-        # reg add HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR /v AppCaptureEnabled /t REG_DWORD /d 0 /f
-        # reg add HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR /v HistoricalCaptureEnabled /t REG_DWORD /d 0 /f
-        pass
-    case cancel:
-        pass
+  response = ask_checkbox("SET WINDOWS FEATURES",choices,True)
+  for task in response:
+      match task:
+        case 0:
+            disable_uac()
+        case 1:
+            enable_dark_mode()
+        case 2:
+            disable_lock_screen()
+        case 3:
+            show_file_extensions()
+        case 4:
+            show_hidden_files()
+        case 5:
+            remove_search_bar()
+        case 6:
+            remove_task_bar()
+        case 7:
+            disable_xbox_dvr()
 
-# ---------------------------------------------------------------------------- #
-#                               CHANGE WALLPAPER                               #
-# ---------------------------------------------------------------------------- #
+      
+
+def disable_uac():
+    command = r'reg add HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+
+def enable_dark_mode():
+    command = r'reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize /v AppsUseLightTheme /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+    command = r'reg add HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize /v SystemUsesLightTheme /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+
+def disable_lock_screen():
+    command = r'reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Personalization /v NoLockScreen /t REG_DWORD /d 1 /f'
+    subprocess.run(command, shell=True)
+
+def show_file_extensions():
+    command = r'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v HideFileExt /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+
+def show_hidden_files():
+    command = r'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v Hidden /t REG_DWORD /d 1 /f'
+    subprocess.run(command, shell=True)
+
+def remove_search_bar():
+    command = r'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Search /v SearchboxTaskbarMode /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+
+def remove_task_bar():
+    command = r'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v ShowTaskViewButton /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+
+def disable_xbox_dvr():
+    command = r'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR /v AppCaptureEnabled /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+    command = r'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR /v HistoricalCaptureEnabled /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+
+
+# ---------------------------------- TASKBAR --------------------------------- #
+
+def remove_cortana():
+    command = r'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v ShowCortanaButton /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+
+def hide_people():
+    command = r'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People /v PeopleBand /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+
+def hide_windows_defender():
+    command = r'reg delete HKLM\Software\Microsoft\Windows\CurrentVersion\Run /v SecurityHealth /f'
+    subprocess.run(command, shell=True)
+
+def disable_skype():
+    command = r'reg add "HKCU\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\Microsoft.SkypeApp_kzf8qxf38zg5c\SkypeStartup" /v State /t REG_DWORD /d 0 /f'
+    subprocess.run(command, shell=True)
+
+def remove_news():
+    command = r'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds /v ShellFeedsTaskbarViewMode /t REG_DWORD /d 2 /f'
+    subprocess.run(command, shell=True)
+    command = r'reg add HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Feeds /v ShellFeedsTaskbarViewMode /t REG_DWORD /d 2 /f'
+    subprocess.run(command, shell=True)
+

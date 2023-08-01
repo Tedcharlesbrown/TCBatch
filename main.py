@@ -1,6 +1,7 @@
 import os.path
 import os
 import time
+import subprocess
 
 import pyuac
 
@@ -11,11 +12,10 @@ from constants import *
 
 from src_computer_name.menu_computer_name import menu_change_computer_name
 from src_network.menu_network import menu_change_network
-from src_software.menu_software import menu_download_software
-from src_software.menu_software import menu_install_software
+from src_software.menu_software import menu_manage_software
 from src_optimize_windows.menu_optimize_windows import menu_optimize_windows
 from src_restart.menu_restart import menu_restart_computer
-from src_grafana.menu_grafana import menu_setup_grafana
+from src_automations.menu_automations import menu_custom_automations
 
 
 # ---------------------------------------------------------------------------- #
@@ -31,39 +31,52 @@ def folder_application_init():
 
 def menu_main():
 	choices = [
-		"Change Computer Name",				#0
-		"Change Network Settings",			#1
-		"Download Software",				#2
-		"Install Software",					#3
-		"Setup Grafana",					#4
-		"Optimize Windows",					#5
-		"Create Startup Shortcut Folder",	#6
-		"Restart Computer"]					#7
+		"Manage Windows Settings",					#0
+		"Download / Install Software",					#1
+		"Automations",						#2
+		"Restart Computer"]					#3
 
 	# WINDOWS BACKUP?
 
 	match ask_select(APP_NAME,choices,True):
 		case 0:
-			menu_change_computer_name()
+			menu_manage_windows()
 		case 1:
-			menu_change_network()
+			menu_manage_software()
 		case 2:
-			menu_download_software()
+			menu_custom_automations()
 		case 3:
-			menu_install_software()
-		case 4:
-			menu_setup_grafana()
-		case 5:
-			# print_hint("-----credit to Andy Babin-----")
-			menu_optimize_windows()
-		case 6:
 			menu_startup_symlink()
-		case 7:
+		case 4:
 			menu_restart_computer()
 	
 	menu_main()
 
+def menu_manage_windows():
+	choices = [
+		"Change Computer Name",
+		"Change Network Settings",
+		"Optimize Windows",
+		"Create Startup Shortcut Folder"
+	]
 
+	choices.append("[return]")
+	cancel = choices[-1]
+
+	match ask_select("MANAGE WINDOWS",choices,True):
+		case 0:
+			menu_change_computer_name()
+		case 1:
+			menu_change_network()
+		case 2:
+			# print_hint("-----credit to Andy Babin-----")
+			menu_optimize_windows()
+		case 3:
+			menu_startup_symlink()
+		case cancel:
+			return
+		
+	menu_manage_windows()
 
 # ---------------------------------------------------------------------------- #
 #                              SET STARTUP SYMLINK                             #
@@ -73,10 +86,10 @@ def menu_startup_symlink():
 	questionary.print("CREATING STARTUP SYMLINK FOLDER", style="bold")
 
 	winshell.CreateShortcut(
-    Path=os.path.join(winshell.desktop(), "Startup_Shortcut.lnk"),
-    Target=PATH_STARTUP_FOLDER,
-    Icon=(PATH_STARTUP_FOLDER, 0),
-    Description="Shortcut to Startup"
+	Path=os.path.join(winshell.desktop(), "Startup_Shortcut.lnk"),
+	Target=PATH_STARTUP_FOLDER,
+	Icon=(PATH_STARTUP_FOLDER, 0),
+	Description="Shortcut to Startup"
 )
 
 	time.sleep(1)

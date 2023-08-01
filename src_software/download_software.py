@@ -118,7 +118,7 @@ async def find_file_from_website(url: str):
 async def get_download(app_list: list):
 	if len(app_list) == 0:
 		print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
-
+		
 	download_tasks = []
 	archived_apps = []
 
@@ -136,14 +136,17 @@ async def get_download(app_list: list):
 					else:
 						# print(f"DOWNLOADING: {app.display}")
 						download_tasks.append(find_file_from_website(app.link))
+				else:
+					print("PASSWORD: TCB ADDRESS (numbers only)")
+					webbrowser.open("http://gofile.me/70auI/6qt31duqE", new=0, autoraise=True)
 
 	# execute all tasks concurrently
 	results = (await asyncio.gather(*download_tasks, return_exceptions=True))
 	for result, app in zip(results, app_list):
 		if result is None:
-			print(app_list)
-			print(results)
-			print(f"ADDING TO ARCHIVE {app}")
+			# print(app_list)
+			# print(results)
+			# print(f"ADDING TO ARCHIVE {app}")
 			archived_apps.append(app)
 	return archived_apps
 
@@ -161,7 +164,3 @@ def get_archive(app_list: list):
 						# if app.link == "Archive":
 						print(f"DOWNLOADING: {app.display}")
 						download_from_archive(app.name)
-
-					else:
-						print("PASSWORD: TCB ADDRESS (numbers only)")
-						webbrowser.open("http://gofile.me/70auI/6qt31duqE", new=0, autoraise=True)

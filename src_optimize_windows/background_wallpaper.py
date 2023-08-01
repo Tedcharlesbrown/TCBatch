@@ -2,6 +2,7 @@ import os
 import ctypes
 from PIL import Image
 import win32api
+import subprocess
 
 from constants import *
 
@@ -16,7 +17,6 @@ def set_color_background(red: int, green: int, blue: int):
     # Create the image and save it as a BMP file
     img = Image.new("RGB", size, color)
     img.save(f"{UTILITY_FOLDER_PATH}background.bmp")
-    print("TEST")
 
     set_background()
 
@@ -25,19 +25,22 @@ def set_background():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     background = os.path.join(script_dir, f"{UTILITY_FOLDER_PATH}background.bmp")
 
-    # Set the BMP file as the desktop background
-    SPI_SETDESKWALLPAPER = 0x14
-    SPIF_UPDATEINIFILE = 0x2
-    ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, background, SPIF_UPDATEINIFILE)
-
-def set_tcb_background():
-    # Get the absolute path to the background.bmp file
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    background = os.path.join(script_dir, f"tcb_bg.bmp")
+    # Update the registry
+    subprocess.run(['reg', 'add', 'HKCU\\Control Panel\\Desktop', '/v', 'Wallpaper', '/t', 'REG_SZ', '/d', background, '/f'])
 
     # Set the BMP file as the desktop background
     SPI_SETDESKWALLPAPER = 0x14
     SPIF_UPDATEINIFILE = 0x2
     ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, background, SPIF_UPDATEINIFILE)
+
+# def set_tcb_background():
+#     # Get the absolute path to the background.bmp file
+#     script_dir = os.path.dirname(os.path.abspath(__file__))
+#     background = os.path.join(script_dir, f"tcb_bg.bmp")
+
+#     # Set the BMP file as the desktop background
+#     SPI_SETDESKWALLPAPER = 0x14
+#     SPIF_UPDATEINIFILE = 0x2
+#     ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, background, SPIF_UPDATEINIFILE)
     
-# set_tcb_background()
+# # set_tcb_background()

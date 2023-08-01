@@ -72,7 +72,7 @@ APPLICATION_DOWNLOAD_LIST = [
     # ------------------------------------- Y ------------------------------------ #
     # ------------------------------------- Z ------------------------------------ #
 
-    APPLICATION("Grafana","","Archive"),
+    # APPLICATION("Grafana","","Archive"),
     APPLICATION("Custom Scripts","", "http://gofile.me/70auI/6qt31duqE"),
 ]
 
@@ -101,6 +101,7 @@ BLOATWARE_APPLICATION_LIST = [
     "Microsoft.YourPhone",
     "Microsoft.XboxApp",
     "Microsoft.XboxGameOverlay",
+    "Microsoft.XboxGamingOverlay",
     "Microsoft.ZuneMusic",
     "Microsoft.ZuneVideo",
     # "Microsoft.Windows.Photos",
@@ -115,10 +116,16 @@ BLOATWARE_APPLICATION_LIST = [
     "Microsoft.BingSports",
     "*linkedin*",
     "Microsoft.MicrosoftOfficeHub",
+    "Microsoft.Office.Word",
+    "Microsoft.Office.Excel",
+    "Microsoft.Office.Powerpoint",
+    "Microsoft.Office.Outlook",
+    "Microsoft.OneDrive",
     "Microsoft.OneConnect",
     "Microsoft.Office.OneNote",
     "Microsoft.WindowsFeedbackHub",
     "Microsoft.GetHelp",
     "Microsoft.Getstarted",
     "Microsoft.MSPaint",
+    "Microsoft.Wallet",
 ]
