@@ -3,8 +3,10 @@ import os
 import yaml
 import subprocess
 import win32com.client
+import win32serviceutil
 from datetime import datetime
 import zipfile
+import time
 
 from constants import *
 from questions import *
@@ -15,6 +17,9 @@ from src_software.install_software import install_exe
 
 path_to_grafana_setup = os.path.join(UTILITY_FOLDER_PATH,"GrafanaSetup")
 path_to_grafana_zip = os.path.join(UTILITY_FOLDER_PATH,"GrafanaSetup.zip")
+
+path_to_grafana_addon = r"C:\Program Files\GrafanaLabs\grafana\data"
+path_to_prtg_zip = os.path.join(path_to_grafana_setup,"jasonlashua-prtg-datasource.zip")
 
 path_grafana_msi = os.path.join(path_to_grafana_setup,"grafana.msi")
 path_prometheus_exe = os.path.join(path_to_grafana_setup,"prometheus.exe")
@@ -48,21 +53,46 @@ def install_grafana_host(target_names: list, target_ips: list):
 		try:
 			install_msi(path_grafana_msi,"")
 
+			if os.path.exists(path_to_grafana_addon):
+				print("PATH EXISTS")
+				try:
+					with zipfile.ZipFile(path_to_prtg_zip, 'r') as zip_ref:
+						path = f'{path_to_grafana_addon}/plugins'
+						print(path)
+						zip_ref.extractall(path)
+				except Exception as e:
+					# print(e)
+					print("COULD NOT UNZIP PRTG PLUGIN")
+			else:
+				print("PATH DOES NOT EXIST")
+
+			try:
+				win32serviceutil.StopService("Grafana")
+				time.sleep(3)  # wait a few seconds to ensure the service stops
+				win32serviceutil.StartService("Grafana")
+			except:
+				print("COULD NOT RESTART GRAFANA SERVICE")
+
 			print("INSTALLED GRAFANA, localhost:3000")
 		except:
 			print("COULD NOT INSTALL GRAFANA")
+		
+		input()
 
 		# -------------------------------- PROMETHEUS -------------------------------- # #9090
 		try:
 			create_task(path_prometheus_exe,path_to_grafana_setup)
+		except Exception as e:
+			# print(e)
+			print("COULD NOT SCHEDULE PROMETHEUS AT LOGON")
+		try:
+			os.chdir(path_to_grafana_setup) #UNTESTED WITH NORMAL MSI (NON WINDOWS EXPORTER)
 			subprocess.Popen([path_prometheus_exe, "--config.file",path_prometheus_yml],creationflags=subprocess.CREATE_NEW_CONSOLE)
 			print("INSTALLED PROMETHEUS, localhost:9090")
 
 		except Exception as e:
 			# print(e)
 			print("COULD NOT INSTALL PROMETEHUS")
-
-		# subprocess.run(f'sc create "Prometheus" binPath= "{path_prometheus_exe} --config.file={path_prometheus_yml}" start= auto')
 
 		# ----------------------------------- PRTG ----------------------------------- #
 		try:
@@ -73,45 +103,51 @@ def install_grafana_host(target_names: list, target_ips: list):
 			print("COULD NOT INSTALL PRTG")
 
 def create_task(path_to_executable,directory_path):
-    computer_name = ""  # leave blank for local machine
-    username = ""  # leave blank for current user
-    task_name = "Prometheus AutoStart"
-    action_path = path_to_executable  # path to your executable
+	computer_name = ""  # leave blank for local machine
+	username = ""  # leave blank for current user
+	task_name = "Prometheus AutoStart"
+	action_path = path_to_executable  # path to your executable
 
-    scheduler = win32com.client.Dispatch("Schedule.Service")
-    scheduler.Connect(computer_name)
+	TASK_TRIGGER_AT_LOGON = 9
+	TASK_ACTION_EXEC = 0
+	TASK_CREATE_OR_UPDATE = 6
+	TASK_LOGON_INTERACTIVE_TOKEN = 3
+	TASK_RUNLEVEL_HIGHEST = 1
 
-    root_folder = scheduler.GetFolder("\\")
+	scheduler = win32com.client.Dispatch("Schedule.Service")
+	scheduler.Connect(computer_name)
 
-    task_def = scheduler.NewTask(0)
+	root_folder = scheduler.GetFolder("\\")
 
-    # Create trigger
-    start_trigger = task_def.Triggers.Create(TASK_TRIGGER_AT_LOGON)
-    start_trigger.Enabled = True
+	task_def = scheduler.NewTask(0)
 
-    # Create action
-    action = task_def.Actions.Create(0)
-    action.Path = action_path
-    action.WorkingDirectory = directory_path
+	# Create trigger
+	start_trigger = task_def.Triggers.Create(TASK_TRIGGER_AT_LOGON)
+	start_trigger.Enabled = True
 
-    # Set parameters
-    info = task_def.RegistrationInfo
-    info.Author = username
-    info.Description = "Python created task"
+	# Create action
+	action = task_def.Actions.Create(TASK_ACTION_EXEC)
+	action.Path = action_path
+	action.WorkingDirectory = directory_path
 
-    # Set principal - this is where you set the highest privileges
-    principal = task_def.Principal
-    principal.RunLevel = 1  # TASK_RUNLEVEL_HIGHEST
+	# Set parameters
+	info = task_def.RegistrationInfo
+	info.Author = username
+	info.Description = "Python created task"
 
-    # Register the task (create or update, just keep the task name the same)
-    root_folder.RegisterTaskDefinition(
-        task_name,
-        task_def,
-        6,  # TASK_CREATE_OR_UPDATE
-        "",  # No user
-        "",  # No password
-        3,  # TASK_LOGON_INTERACTIVE_TOKEN
-    )
+	# Set principal - this is where you set the highest privileges
+	principal = task_def.Principal
+	principal.RunLevel = TASK_RUNLEVEL_HIGHEST
+
+	# Register the task (create or update, just keep the task name the same)
+	result = root_folder.RegisterTaskDefinition(
+		task_name,
+		task_def,
+		TASK_CREATE_OR_UPDATE,
+		"",  # No user
+		"",  # No password
+		TASK_LOGON_INTERACTIVE_TOKEN,
+	)
 
 
 def edit_prometheus_yml(target_names: list, target_ips: list):

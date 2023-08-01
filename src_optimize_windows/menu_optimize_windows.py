@@ -88,5 +88,5 @@ def menu_change_background():
 		print_error("COULD NOT CHANGE WALLPAPER")
 
 			
-	print_return()
+	# print_return()
 	return

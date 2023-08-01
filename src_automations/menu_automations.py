@@ -16,7 +16,7 @@ def menu_custom_automations():
 	choices.append("[return]")
 	cancel = choices[-1]
 
-	match ask_select("CUSTOM AUTOMATIONS",choices,True):
+	match ask_select(ASCII_AUTOMATIONS,choices,True):
 		case 0:
 			menu_setup_grafana()
 		case 1:
@@ -37,10 +37,9 @@ def menu_setup_grafana():
 	choices.append("[return]")
 	cancel = choices[-1]
 
-	match ask_select("SETUP GRAFANA",choices,True):
+	match ask_select(ASCII_GRAFANA,choices,True):
 		case 0:
 			check_and_download_grafana()
-			print(DIVIDER)
 			menu_setup_grafana_host()
 		case 1:
 			install_grafana_client()
@@ -56,6 +55,8 @@ def menu_setup_grafana_host():
 	names = []
 	ips = []
 	
+	print("SETTING UP PROMETHEUS YAML")
+
 	while True:
 		name = ask_text(f"{targets}: TARGET NAME:")
 		if not name:

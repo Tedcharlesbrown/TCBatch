@@ -17,5 +17,5 @@ def menu_change_computer_name():
 			subprocess.call(['powershell.exe', "Rename-Computer -NewName " + user_input])
 
 
-	print_return()
+	# print_return()
 	return

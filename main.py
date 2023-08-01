@@ -46,8 +46,6 @@ def menu_main():
 		case 2:
 			menu_custom_automations()
 		case 3:
-			menu_startup_symlink()
-		case 4:
 			menu_restart_computer()
 	
 	menu_main()
@@ -63,7 +61,7 @@ def menu_manage_windows():
 	choices.append("[return]")
 	cancel = choices[-1]
 
-	match ask_select("MANAGE WINDOWS",choices,True):
+	match ask_select(ASCII_MANAGE_WINDOWS,choices,True):
 		case 0:
 			menu_change_computer_name()
 		case 1:
@@ -94,8 +92,8 @@ def menu_startup_symlink():
 
 	time.sleep(1)
 
-	print_return()
-	menu_main()
+	# print_return()
+	menu_manage_windows()
 
 
 # ---------------------------------------------------------------------------- #

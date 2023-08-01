@@ -44,6 +44,7 @@ jobs:
         pip install tqdm
         pip install webbrowser
         pip install win32api
+        pip intsall win32serviceutil
         pip install winshell
         
         if (Test-Path requirements.txt) {pip install -r requirements.txt}

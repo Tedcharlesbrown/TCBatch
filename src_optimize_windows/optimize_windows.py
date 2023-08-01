@@ -9,6 +9,7 @@
 # DISABLE AUTOMATIC UPDATES
 
 import subprocess
+from constants import *
 from questions import *
 from src_software.application_list import BLOATWARE_APPLICATION_LIST
 
@@ -19,7 +20,7 @@ from src_software.application_list import BLOATWARE_APPLICATION_LIST
 
 def remove_bloatware_apps():
     for app in BLOATWARE_APPLICATION_LIST:
-        print(f"removing {app}")
+        # print(f"removing {app}")
         cmd = f"Get-AppxPackage {app} | Remove-AppxPackage"
         subprocess.call(["powershell.exe", cmd])
 
@@ -43,7 +44,7 @@ def set_windows_features():
     "Disable XBOX DVR capture",     #7
     ]
   
-  response = ask_checkbox("SET WINDOWS FEATURES",choices,True)
+  response = ask_checkbox(ASCII_SET_WINDOWS_FEATURES,choices,True)
   for task in response:
       match task:
         case 0:
