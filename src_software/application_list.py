@@ -60,6 +60,7 @@ APPLICATION_DOWNLOAD_LIST = [
     # ------------------------------------- T ------------------------------------ #
     APPLICATION("Tailscale","Tailscale.exe","https://pkgs.tailscale.com/stable/"),
     APPLICATION("Tight VNC","TightVNC.msi","https://www.tightvnc.com/download.php"),
+    APPLICATION("Touchdesigner","Touchdesigner.exe","Archive"),
     APPLICATION("TouchOSC","touchosc.exe","https://hexler.net/touchosc#windows"),
     # ------------------------------------- U ------------------------------------ #
     # ------------------------------------- V ------------------------------------ #
