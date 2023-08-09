@@ -11,7 +11,7 @@
 import subprocess
 from constants import *
 from questions import *
-from src_software.application_list import BLOATWARE_APPLICATION_LIST
+from src_optimize_windows.bloatware_list import BLOATWARE_APPLICATION_LIST
 
 # ---------------------------------------------------------------------------- #
 #                               REMOVE BLOATWARE                               #

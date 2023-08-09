@@ -1,0 +1,207 @@
+[
+    {
+        "display": "Artnetominator",
+        "name": "Artnetominator.msi",
+        "link": "https://www.lightjams.com/artnetominator/"
+    },
+    {
+        "display": "Barco Event Master",
+        "name": "Barco-Event-Master.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "BGInfo",
+        "name": "BGInfo.exe",
+        "link": "https://learn.microsoft.com/en-us/sysinternals/downloads/bginfo"
+    },
+    {
+        "display": "Bitfocus Companion",
+        "name": "Bitfocus-Companion.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "Blackmagic Atem",
+        "name": "Blackmagic-Atem.msi",
+        "link": "Archive"
+    },
+    {
+        "display": "Blackmagic Multiview",
+        "name": "Blackmagic-Multiview.msi",
+        "link": "Archive"
+    },
+    {
+        "display": "Blackmagic Videohub",
+        "name": "Blackmagic-Videohub.msi",
+        "link": "Archive"
+    },
+    {
+        "display": "Brompton - Tessera",
+        "name": "Brompton-Tessera.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "Bulk Redisplay Utility",
+        "name": "Bulk-Redisplay-Utility.exe",
+        "link": "https://www.bulkredisplayutility.co.uk/Download.php"
+    },
+    {
+        "display": "D3 Disguise",
+        "name": "d3.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "Dashboard",
+        "name": "Dashboard.exe",
+        "link": "https://www.opengear.tv/frame-and-control/control-system/download/"
+    },
+    {
+        "display": "Decimator Control Software",
+        "name": "Decimator-Control-Software.msi",
+        "link": "http://decimator.com/DOWNLOADS/DOWNLOADS.html"
+    },
+    {
+        "display": "ETC Eos",
+        "name": "EOS-Family.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "Free File Sync",
+        "name": "Free-File-Sync.exe",
+        "link": "https://freefilesync.org/download.php"
+    },
+    {
+        "display": "Github",
+        "name": "Github.exe",
+        "link": "https://central.github.com/deployments/desktop/desktop/latest/win32"
+    },
+    {
+        "display": "Intel PROset",
+        "name": "Intel-PROset.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "Midi-Ox",
+        "name": "Midi-Ox.exe",
+        "link": "http://www.midiox.com/zip/midioxse.exe"
+    },
+    {
+        "display": "myFFmpeg",
+        "name": "myFFmpeg.exe",
+        "link": "https://www.myffmpeg.com/download.html"
+    },
+    {
+        "display": "NDI Tools",
+        "name": "NDI-Tools.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "Netgear Switch Discovery",
+        "name": "Netgear-Discovery.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "NetSetMan",
+        "name": "Net-Set-Man.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "OBS Studio",
+        "name": "OBS-Studio.exe",
+        "link": "https://obsproject.com/download"
+    },
+    {
+        "display": "Panasonic Easy IP",
+        "name": "Panasonic-EasyIP.zip",
+        "link": "Archive"
+    },
+    {
+        "display": "Parsec",
+        "name": "Parsec.exe",
+        "link": "https://builds.parsec.app/package/parsec-windows.exe"
+    },
+    {
+        "display": "Pixera Hub",
+        "name": "PixeraHub.exe",
+        "link": "https://pixera.one/en/support/downloads"
+    },
+    {
+        "display": "Processing",
+        "name": "Processing.zip",
+        "link": "Archive"
+    },
+    {
+        "display": "Protokol",
+        "name": "Protokol.exe",
+        "link": "https://hexler.net/protokol#windows"
+    },
+    {
+        "display": "PuTTY",
+        "name": "Putty.msi",
+        "link": "https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html"
+    },
+    {
+        "display": "Python",
+        "name": "Python.exe",
+        "link": "https://www.python.org/downloads/"
+    },
+    {
+        "display": "Real VNC",
+        "name": "RealVNC.exe",
+        "link": "https://www.realvnc.com/en/connect/download/viewer/windows/"
+    },
+    {
+        "display": "Reaper",
+        "name": "Reaper.exe",
+        "link": "https://www.reaper.fm/download.php"
+    },
+    {
+        "display": "Rufus",
+        "name": "Rufus.exe",
+        "link": "https://rufus.ie/en/"
+    },
+    {
+        "display": "Sublime Text Editor",
+        "name": "Sublime.exe",
+        "link": "https://www.sublimetext.com/download_thanks?target=win-x64"
+    },
+    {
+        "display": "Tailscale",
+        "name": "Tailscale.exe",
+        "link": "https://pkgs.tailscale.com/stable/"
+    },
+    {
+        "display": "Tight VNC",
+        "name": "TightVNC.msi",
+        "link": "https://www.tightvnc.com/download.php"
+    },
+    {
+        "display": "Touchdesigner",
+        "name": "Touchdesigner.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "TouchOSC",
+        "name": "touchosc.exe",
+        "link": "https://hexler.net/touchosc#windows"
+    },
+    {
+        "display": "vMix",
+        "name": "vMix.exe",
+        "link": "https://www.vmix.com/software/download.aspx"
+    },
+    {
+        "display": "Visual Studio Code",
+        "name": "vscode.exe",
+        "link": "Archive"
+    },
+    {
+        "display": "WinDirStat",
+        "name": "windirstat.exe",
+        "link": "https://www.fosshub.com/WinDirStat.html"
+    },
+    {
+        "display": "Wireshark",
+        "name": "Wireshark.exe",
+        "link": "https://www.wireshark.org/download.html"
+    }
+]

@@ -9,7 +9,6 @@ DIVIDER = "----------"
 PATH_THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 PATH_STARTUP_FOLDER = winshell.startup()
 PATH_INTEL_PROSET = r'C:\Program Files\Intel\Wired Networking\IntelNetCmdlets'
-
 APPLICATION_INSTALL_LIST = []
 UTILITY_FOLDER_PATH = r'C:\Program Files\TCBatch/'
 PATH_DESKTOP = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')

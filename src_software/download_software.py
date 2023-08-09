@@ -115,7 +115,8 @@ async def find_file_from_website(url: str):
 		return None
 
 
-async def get_download(app_list: list):
+async def get_download(app_list: list, APPLICATION_DOWNLOAD_LIST: list):
+
 	if len(app_list) == 0:
 		print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
 		
@@ -151,7 +152,7 @@ async def get_download(app_list: list):
 	return archived_apps
 
 
-def get_archive(app_list: list):
+def get_archive(app_list: list, APPLICATION_DOWNLOAD_LIST: list):
 	if len(app_list) > 0:
 		for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
 			for selected in app_list:
