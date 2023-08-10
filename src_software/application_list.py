@@ -22,4 +22,7 @@ def get_download_list() -> list:
         app = APPLICATION(item["display"], item["name"], item["link"])
         download_list.append(app)
 
+    custom = APPLICATION("Custom Scripts","Custom Scripts","Archive")
+    download_list.append(custom)
+
     constants.APPLICATION_DOWNLOAD_LIST = download_list
