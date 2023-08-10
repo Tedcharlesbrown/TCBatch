@@ -4,10 +4,13 @@ from src_software.application_list import get_download_list
 from src_software.download_software import get_archive
 from src_software.download_software import get_download
 from src_software.install_software import install_applications
+
 from constants import *
+import constants
 
 import asyncio
 import time
+import os
 
 
 def menu_manage_software():
@@ -37,15 +40,16 @@ def menu_manage_software():
 
 def menu_download_software():
 	choices = []
-	APPLICATION_DOWNLOAD_LIST = get_download_list()
+	get_download_list()
 	
-	for application in APPLICATION_DOWNLOAD_LIST:
+	for application in constants.APPLICATION_DOWNLOAD_LIST:
 		choices.append(application.display)
 
 	apps = ask_checkbox(ASCII_DOWNLOAD,choices,False)
 
-	archived_apps = asyncio.run(get_download(apps,APPLICATION_DOWNLOAD_LIST))
-	get_archive(archived_apps,APPLICATION_DOWNLOAD_LIST)
+	apps = check_already_downloaded(apps)
+	apps = asyncio.run(get_download(apps))
+	get_archive(apps)
 
 	print_return()
 	return
@@ -53,6 +57,11 @@ def menu_download_software():
 # ---------------------------------------------------------------------------- #
 #                               INSTALL SOFTWARE                               #
 # ---------------------------------------------------------------------------- #
+
+
+
+
+
 
 def menu_install_software():
 	application_install_list = os.listdir(UTILITY_FOLDER_PATH)

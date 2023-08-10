@@ -10,14 +10,41 @@ import webbrowser
 from urllib.parse import urljoin
 
 from constants import *
-from .application_list import *
+import constants
 
 from questions import ask_select
 from questions import print_error
 
+from fuzzywuzzy import fuzz
 
-def download_from_archive(file_to_search: str):
-	print("DOWNLOADING FROM ARCHIVE")
+def check_already_downloaded(app_list: list) -> list:
+	downloaded_files = os.listdir(UTILITY_FOLDER_PATH)
+	return_list = []
+
+	for app in app_list:
+		app_found = False
+		for file in downloaded_files:
+			check_file = file.lower()[:len(file)-4]
+			check_app = app.lower()  # Assuming app is the name you want to compare
+			check_fuzz = fuzz.ratio(check_file, check_app)
+			
+			# If a match is found, break out of the inner loop
+			if check_fuzz > 75:
+				app_found = True
+				print(f"{app.upper()} ALREADY DOWNLOADED")
+				# print(check_file, check_app, check_fuzz)
+				break
+		
+		# If app wasn't found in downloaded_files, add it to the return_list
+		if not app_found:
+			return_list.append(app)
+
+	return return_list  # returning the list of apps that were not found
+
+
+def download_from_archive(file_to_search: str, verbose: bool):
+	if verbose:
+		print("DOWNLOADING FROM ARCHIVE")
 	file_found = False
 
 	try:
@@ -47,7 +74,8 @@ def download_from_archive(file_to_search: str):
 
 		# Download the file
 		with open(UTILITY_FOLDER_PATH + file_to_download, 'wb') as f:
-			print(f"FOUND {file_to_download} FROM ARCHIVE, PLEASE WAIT")
+			if verbose: 
+				print(f"FOUND {file_to_download} FROM ARCHIVE, PLEASE WAIT")
 			file_size = ftp.size(file_to_download)
 			progress = tqdm(total=file_size, unit='B', unit_scale=True)
 			def progress_callback(data):
@@ -55,12 +83,15 @@ def download_from_archive(file_to_search: str):
 				f.write(data)
 			ftp.retrbinary(f'RETR {file_to_download}', progress_callback)
 			progress.close()
-			print("DOWNLOAD COMPLETE")
+			if verbose:
+				print("DOWNLOAD COMPLETE")
 
 	else:
 		print("NOT IN ARCHIVE")
 
-	print(DIVIDER)
+	if verbose:
+		print(DIVIDER)
+
 	ftp.quit()
 
 async def get_page_html(url: str):
@@ -115,21 +146,20 @@ async def find_file_from_website(url: str):
 		return None
 
 
-async def get_download(app_list: list, APPLICATION_DOWNLOAD_LIST: list):
-
+async def get_download(app_list: list):
 	if len(app_list) == 0:
 		print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
 		
 	download_tasks = []
 	archived_apps = []
 
-	for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
+	for i, app in enumerate(constants.APPLICATION_DOWNLOAD_LIST):
 		for selected in app_list:
 			if selected in app.display:
 				# print(selected)
-				app = APPLICATION_DOWNLOAD_LIST[i]
+				app = constants.APPLICATION_DOWNLOAD_LIST[i]
 
-				if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
+				if i != len(constants.APPLICATION_DOWNLOAD_LIST) - 1:
 
 					if app.link == "Archive":
 						archived_apps.append(app.display)
@@ -152,16 +182,16 @@ async def get_download(app_list: list, APPLICATION_DOWNLOAD_LIST: list):
 	return archived_apps
 
 
-def get_archive(app_list: list, APPLICATION_DOWNLOAD_LIST: list):
+def get_archive(app_list: list):
 	if len(app_list) > 0:
-		for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
+		for i, app in enumerate(constants.APPLICATION_DOWNLOAD_LIST):
 			for selected in app_list:
 				if selected in app.display:
 					# print(selected)
-					app = APPLICATION_DOWNLOAD_LIST[i]
+					app = constants.APPLICATION_DOWNLOAD_LIST[i]
 
-					if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
+					if i != len(constants.APPLICATION_DOWNLOAD_LIST) - 1:
 
 						# if app.link == "Archive":
 						print(f"DOWNLOADING: {app.display}")
-						download_from_archive(app.name)
+						download_from_archive(app.name, True)
