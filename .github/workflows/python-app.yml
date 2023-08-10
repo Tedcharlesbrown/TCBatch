@@ -35,6 +35,7 @@ jobs:
         pip install Pillow
         pip install PIL
         pip install PIL.Image
+        pip install psutil
         pip install pyinstaller
         pip install pyppeteer
         pip install pyuac

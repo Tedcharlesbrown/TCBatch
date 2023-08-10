@@ -16,7 +16,8 @@ import os
 def menu_manage_software():
 	choices = [
 		"Download Software",
-		"Install Software"
+		"Install Software",
+		"Change Software Folder"
 	]
 
 	choices.append("[return]")
@@ -28,6 +29,9 @@ def menu_manage_software():
 			menu_manage_software()
 		case 1:
 			menu_install_software()
+			menu_manage_software()
+		case 2:
+			menu_change_folder_location()
 			menu_manage_software()
 		case cancel:
 			return
@@ -59,12 +63,8 @@ def menu_download_software():
 # ---------------------------------------------------------------------------- #
 
 
-
-
-
-
 def menu_install_software():
-	application_install_list = os.listdir(UTILITY_FOLDER_PATH)
+	application_install_list = os.listdir(constants.DOWNLOAD_FOLDER_PATH)
 
 	application_install_list = [file for file in application_install_list if file.endswith(".exe") or file.endswith(".msi")]
 
@@ -76,4 +76,52 @@ def menu_install_software():
 		install_applications(ask_checkbox(ASCII_SOFTWARE, application_install_list,False))
 
 	print_return()
+	return
+
+# ---------------------------------------------------------------------------- #
+#                            CHANGE FOLDER LOCATION                            #
+# ---------------------------------------------------------------------------- #
+
+from src_software.change_folder_location import get_mounted_drives
+from src_software.change_folder_location import get_shared_folders
+
+def menu_change_folder_location():
+	choices = [
+		"Local Drive",
+		"Network Shared Drive",
+	]
+
+	choices.append("[return]")
+	cancel = choices[-1]
+
+	match ask_select("CHANGE FOLDER",choices,True):
+		case 0:
+			choices = get_mounted_drives()
+			choices.append("[return]")
+			cancel = choices[-1]
+			new_path = ask_select("LOCAL DRIVE",choices,False)
+			constants.DOWNLOAD_FOLDER_PATH = new_path + "TCBatch/"
+		case 1:
+			user_input = ask_text("IP ADDRESS:")
+			if user_input:
+				choices = get_shared_folders(user_input)
+
+				if choices is None:
+					print("Failed to get shared folders.")
+					return
+
+				choices.append("[return]")
+				cancel = choices[-1]
+				new_path = ask_select("NETWORK DRIVE", choices, False)
+				constants.DOWNLOAD_FOLDER_PATH = f"//{user_input}/{new_path}/TCBatch/"
+			
+		case cancel:
+			return
+	
+	save_settings()
+	try:
+		os.makedirs(constants.DOWNLOAD_FOLDER_PATH)
+	except:
+		pass
+	
 	return

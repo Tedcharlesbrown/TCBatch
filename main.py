@@ -9,6 +9,7 @@ import questionary
 
 from questions import *
 from constants import *
+import constants
 
 from src_computer_name.menu_computer_name import menu_change_computer_name
 from src_network.menu_network import menu_change_network
@@ -23,7 +24,17 @@ from src_automations.menu_automations import menu_custom_automations
 def folder_application_init():
 	if not os.path.exists(UTILITY_FOLDER_PATH):
 		os.makedirs(UTILITY_FOLDER_PATH)
-	
+		save_settings()
+	else:
+		with open(UTILITY_FOLDER_PATH + SETTINGS_FOLDER, "r") as json_file:
+			json_data = json.load(json_file)
+		
+		constants.DOWNLOAD_FOLDER_PATH = json_data["download path"]
+
+		if not os.path.exists(constants.DOWNLOAD_FOLDER_PATH):
+			os.makedirs(constants.DOWNLOAD_FOLDER_PATH)
+
+	print(f"CURRENT DOWNLOAD FOLDER {constants.DOWNLOAD_FOLDER_PATH}")
 
 # ---------------------------------------------------------------------------- #
 #                                   MAIN MENU                                  #
