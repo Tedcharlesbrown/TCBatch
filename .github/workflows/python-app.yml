@@ -32,7 +32,8 @@ jobs:
         pip install asyncio
         pip install bs4
         pip install ftplib
-        pip install fuzzywuzzy python-Levenshtein
+        pip install fuzzywuzzy
+        pip install python-Levenshtein
         pip install Pillow
         pip install PIL
         pip install PIL.Image
