@@ -21,7 +21,7 @@ def save_settings():
         "download path": DOWNLOAD_FOLDER_PATH
     }
 
-    with open(UTILITY_FOLDER_PATH + SETTINGS_FOLDER,'w') as file:
+    with open(os.path.join(UTILITY_FOLDER_PATH, SETTINGS_FOLDER), 'w') as file:
         json.dump(settings, file)
 
 
