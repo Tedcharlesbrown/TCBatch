@@ -21,7 +21,8 @@ def check_already_downloaded(app_list: list) -> list:
 	downloaded_files = os.listdir(constants.DOWNLOAD_FOLDER_PATH)
 	return_list = []
 
-	if not "__archive__" in downloaded_files:
+	# if not "__archive__" in downloaded_files: #CHECK IF DOWNLOADING FROM GLINET
+	if True: #CHECK IF DOWNLOADING FROM GLINET
 
 		for app in app_list:
 			app_found = False
@@ -65,8 +66,6 @@ def download_from_archive(file_to_search: str, verbose: bool):
 
 	versions = []
 	
-	# m_versions = MENU_version("Download Versions", "MULTIPLE VERSIONS FOUND, WHICH VERSION TO DOWNLOAD")
-
 	for file in files:
 		if file.lower().replace("-", "").find(file_to_search.lower().replace("-", "")[:-4]) != -1:
 			file_to_download = file

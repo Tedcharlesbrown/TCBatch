@@ -85,43 +85,90 @@ def menu_install_software():
 from src_software.change_folder_location import get_mounted_drives
 from src_software.change_folder_location import get_shared_folders
 
-def menu_change_folder_location():
-	choices = [
-		"Local Drive",
-		"Network Shared Drive",
-	]
+# def menu_change_folder_location():
+# 	choices = [
+# 		"Local Drive",
+# 		"Network Shared Drive",
+# 	]
 
-	choices.append("[return]")
-	cancel = choices[-1]
+# 	choices.append("[return]")
+# 	cancel = choices[-1]
 
-	match ask_select("CHANGE FOLDER",choices,True):
-		case 0:
-			choices = get_mounted_drives()
-			choices.append("[return]")
-			cancel = choices[-1]
-			new_path = ask_select("LOCAL DRIVE",choices,False)
-			constants.DOWNLOAD_FOLDER_PATH = new_path + "TCBatch/"
-		case 1:
-			user_input = ask_text("IP ADDRESS:")
-			if user_input:
-				choices = get_shared_folders(user_input)
+# 	match ask_select("CHANGE FOLDER",choices,True):
+# 		case 0:
+# 			choices = get_mounted_drives()
+# 			choices.append("[return]")
+# 			cancel = choices[-1]
+# 			new_path = ask_select("LOCAL DRIVE",choices,False)
+# 			constants.DOWNLOAD_FOLDER_PATH = new_path + "TCBatch/"
 
-				if choices is None:
-					print("Failed to get shared folders.")
-					return
+# 			save_settings()
+# 			os.makedirs(constants.DOWNLOAD_FOLDER_PATH, exist_ok=True)
+# 		case 1:
+# 			user_input = ask_text("IP ADDRESS:")
+# 			if user_input:
+# 				choices = get_shared_folders(user_input)
 
-				choices.append("[return]")
-				cancel = choices[-1]
-				new_path = ask_select("NETWORK DRIVE", choices, False)
-				constants.DOWNLOAD_FOLDER_PATH = f"//{user_input}/{new_path}/TCBatch/"
+# 				if choices is None:
+# 					print("Failed to get shared folders.")
+# 					return
+
+# 				choices.append("[return]")
+# 				cancel = choices[-1]
+# 				new_path = ask_select("NETWORK DRIVE", choices, False)
+# 				constants.DOWNLOAD_FOLDER_PATH = f"//{user_input}/{new_path}/TCBatch/"
+
+# 				save_settings()
+# 				os.makedirs(constants.DOWNLOAD_FOLDER_PATH, exist_ok=True)
 			
-		case cancel:
-			return
-	
-	save_settings()
-	try:
-		os.makedirs(constants.DOWNLOAD_FOLDER_PATH)
-	except:
-		pass
-	
-	return
+# 		case cancel:
+# 			return
+
+# 	return
+
+def menu_change_folder_location():
+    choices = [
+        "Local Drive",
+        "Network Shared Drive",
+    ]
+
+    choices.append("[return]")
+    cancel = choices[-1]
+
+    match ask_select("CHANGE FOLDER", choices, True):
+        case 0:
+            choices_drive = get_mounted_drives()
+            choices_drive.append("[return]")
+            
+            new_path = ask_select("LOCAL DRIVE", choices_drive, False)
+            
+            # Check if the user chose to return
+            if new_path == "[return]":
+                return
+            
+            constants.DOWNLOAD_FOLDER_PATH = new_path + "TCBatch/"
+            save_settings()
+            os.makedirs(constants.DOWNLOAD_FOLDER_PATH, exist_ok=True)
+            
+        case 1:
+            user_input = ask_text("IP ADDRESS:")
+            if user_input:
+                choices_network = get_shared_folders(user_input)
+
+                if choices_network is None:
+                    print("Failed to get shared folders.")
+                    return
+
+                choices_network.append("[return]")
+                new_path = ask_select("NETWORK DRIVE", choices_network, False)
+                
+                # Check if the user chose to return
+                if new_path == "[return]":
+                    return
+
+                constants.DOWNLOAD_FOLDER_PATH = f"//{user_input}/{new_path}/TCBatch/"
+                save_settings()
+                os.makedirs(constants.DOWNLOAD_FOLDER_PATH, exist_ok=True)
+            
+        case cancel:
+            return
