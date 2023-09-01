@@ -10,6 +10,7 @@ import questionary
 
 from questions import *
 from constants import *
+import constants
 
 from src_computer_name.menu_computer_name import menu_change_computer_name
 from src_network.menu_network import menu_change_network
@@ -22,10 +23,31 @@ from src_automations.menu_automations import menu_custom_automations
 
 # ---------------------------------------------------------------------------- #
 
-def folder_application_init():
+def utility_folder_init():
 	if not os.path.exists(UTILITY_FOLDER_PATH):
+		# print_error("CREATING TCBatch FOLDER IN C DRIVE")
 		os.makedirs(UTILITY_FOLDER_PATH)
-	
+		# print_error("CREATING SETTINGS.JSON IN C DRIVE")
+		save_settings()
+	elif not os.path.exists(UTILITY_FOLDER_PATH + SETTINGS_FOLDER):
+		# print_error("CREATING SETTINGS.JSON IN C DRIVE")
+		save_settings()
+	elif os.path.exists(UTILITY_FOLDER_PATH) and os.path.exists(UTILITY_FOLDER_PATH + SETTINGS_FOLDER):
+		# print_error("READING SETTINGS.JSON IN C DRIVE")
+		with open(UTILITY_FOLDER_PATH + SETTINGS_FOLDER, "r") as json_file:
+			json_data = json.load(json_file)
+			download_path = json_data["download path"]
+			try:
+				if os.access(download_path, os.W_OK):
+					constants.DOWNLOAD_FOLDER_PATH = download_path
+				else:
+					# print_error("COULD NOT REACH DOWNLOAD FOLDER")
+					save_settings()
+			except Exception as e:
+				print(e)
+				save_settings()
+
+	print(f"CURRENT DOWNLOAD FOLDER {constants.DOWNLOAD_FOLDER_PATH}")
 
 # ---------------------------------------------------------------------------- #
 #                                   MAIN MENU                                  #
@@ -128,7 +150,7 @@ def handle_starting_arguments():
 # ---------------------------------------------------------------------------- #
 
 def main():
-	folder_application_init()
+	utility_folder_init()
 	menu_main()
 
 

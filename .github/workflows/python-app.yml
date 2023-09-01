@@ -5,9 +5,7 @@ name: Python application
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -33,9 +31,12 @@ jobs:
         pip install asyncio
         pip install bs4
         pip install ftplib
+        pip install fuzzywuzzy
+        pip install python-Levenshtein
         pip install Pillow
         pip install PIL
         pip install PIL.Image
+        pip install psutil
         pip install pyinstaller
         pip install pyppeteer
         pip install pyuac

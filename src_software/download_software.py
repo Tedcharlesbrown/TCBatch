@@ -10,14 +10,48 @@ import webbrowser
 from urllib.parse import urljoin
 
 from constants import *
-from .application_list import *
+import constants
 
 from questions import ask_select
 from questions import print_error
 
+from fuzzywuzzy import fuzz
 
-def download_from_archive(file_to_search: str):
-	print("DOWNLOADING FROM ARCHIVE")
+def check_already_downloaded(app_list: list) -> list:
+	downloaded_files = os.listdir(constants.DOWNLOAD_FOLDER_PATH)
+	return_list = []
+
+	# if not "__archive__" in downloaded_files: #CHECK IF DOWNLOADING FROM GLINET
+	if True: #CHECK IF DOWNLOADING FROM GLINET
+
+		for app in app_list:
+			app_found = False
+			for file in downloaded_files:
+				check_app = app.lower()  # Assuming app is the name you want to compare
+				check_file = file.lower()[:len(file)-4] #slice the exstension
+				check_file = file.lower()[:len(check_app)] #slice anything past the length of the stored file name
+				check_fuzz = fuzz.ratio(check_file, check_app)
+				print(check_file, check_app, check_fuzz)
+				
+				# If a match is found, break out of the inner loop
+				if check_fuzz > 75:
+					app_found = True
+					print(f"{app.upper()} ALREADY DOWNLOADED")
+					break
+			
+			# If app wasn't found in downloaded_files, add it to the return_list
+			if not app_found:
+				return_list.append(app)
+
+		return return_list  # returning the list of apps that were not found
+	else:
+		# print_error("USING ARCHIVE SCRIPT")
+		return app_list
+
+
+def download_from_archive(file_to_search: str, verbose: bool):
+	if verbose:
+		print("DOWNLOADING FROM ARCHIVE")
 	file_found = False
 
 	try:
@@ -32,8 +66,6 @@ def download_from_archive(file_to_search: str):
 
 	versions = []
 	
-	# m_versions = MENU_version("Download Versions", "MULTIPLE VERSIONS FOUND, WHICH VERSION TO DOWNLOAD")
-
 	for file in files:
 		if file.lower().replace("-", "").find(file_to_search.lower().replace("-", "")[:-4]) != -1:
 			file_to_download = file
@@ -45,9 +77,15 @@ def download_from_archive(file_to_search: str):
 			versions.reverse()
 			file_to_download = ask_select("MULTIPLE VERSIONS FOUND",versions,False)
 
+		if not verbose: #IF GETTING APPLICATION LIST
+			path = UTILITY_FOLDER_PATH
+		else:
+			path = constants.DOWNLOAD_FOLDER_PATH
+
 		# Download the file
-		with open(UTILITY_FOLDER_PATH + file_to_download, 'wb') as f:
-			print(f"FOUND {file_to_download} FROM ARCHIVE, PLEASE WAIT")
+		with open(path + file_to_download, 'wb') as f:
+			if verbose: 
+				print(f"FOUND {file_to_download} FROM ARCHIVE, PLEASE WAIT")
 			file_size = ftp.size(file_to_download)
 			progress = tqdm(total=file_size, unit='B', unit_scale=True)
 			def progress_callback(data):
@@ -55,12 +93,15 @@ def download_from_archive(file_to_search: str):
 				f.write(data)
 			ftp.retrbinary(f'RETR {file_to_download}', progress_callback)
 			progress.close()
-			print("DOWNLOAD COMPLETE")
+			if verbose:
+				print("DOWNLOAD COMPLETE")
 
 	else:
 		print("NOT IN ARCHIVE")
 
-	print(DIVIDER)
+	if verbose:
+		print(DIVIDER)
+
 	ftp.quit()
 
 async def get_page_html(url: str):
@@ -90,7 +131,7 @@ async def download_from_web(url: str):
 			total_size = int(response.headers.get('Content-Length', 0))
 			progress = async_tqdm(total=total_size, unit='B', unit_scale=True, desc=f'DOWNLOADING {filename}')
 
-			with open(UTILITY_FOLDER_PATH + filename, 'wb') as f:
+			with open(constants.DOWNLOAD_FOLDER_PATH + filename, 'wb') as f:
 				async for data in response.content.iter_any():
 					f.write(data)
 					progress.update(len(data))
@@ -114,53 +155,63 @@ async def find_file_from_website(url: str):
 		print(f"Could not parse {url}")
 		return None
 
-
+# ------------------------------ TIMEOUT VERSION ----------------------------- #
 async def get_download(app_list: list):
-	if len(app_list) == 0:
-		print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
-		
-	download_tasks = []
-	archived_apps = []
+    if len(app_list) == 0:
+        print_error("NO OPTIONS SELECTED, SELECT OPTIONS WITH <space>")
 
-	for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
-		for selected in app_list:
-			if selected in app.display:
-				# print(selected)
-				app = APPLICATION_DOWNLOAD_LIST[i]
+    download_tasks = []
+    archived_apps = []
 
-				if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
+    for i, app in enumerate(constants.APPLICATION_DOWNLOAD_LIST):
+        for selected in app_list:
+            if selected in app.display:
+                app = constants.APPLICATION_DOWNLOAD_LIST[i]
 
-					if app.link == "Archive":
-						archived_apps.append(app.display)
-						app_list.remove(selected)
-					else:
-						# print(f"DOWNLOADING: {app.display}")
-						download_tasks.append(find_file_from_website(app.link))
-				else:
-					print("PASSWORD: TCB ADDRESS (numbers only)")
-					webbrowser.open("http://gofile.me/70auI/6qt31duqE", new=0, autoraise=True)
+                if i != len(constants.APPLICATION_DOWNLOAD_LIST) - 1:
 
-	# execute all tasks concurrently
-	results = (await asyncio.gather(*download_tasks, return_exceptions=True))
-	for result, app in zip(results, app_list):
-		if result is None:
-			# print(app_list)
-			# print(results)
-			# print(f"ADDING TO ARCHIVE {app}")
-			archived_apps.append(app)
-	return archived_apps
+                    if app.link == "Archive":
+                        archived_apps.append(app.display)
+                        app_list.remove(selected)
+                    else:
+                        # Define a timeout duration (e.g., 10 seconds)
+                        TIMEOUT_DURATION = 5
+
+                        # Wrap the download task with a timeout
+                        task = asyncio.wait_for(find_file_from_website(app.link), TIMEOUT_DURATION)
+                        download_tasks.append(task)
+
+                else:
+                    print("PASSWORD: TCB ADDRESS (numbers only)")
+                    webbrowser.open("http://gofile.me/70auI/6qt31duqE", new=0, autoraise=True)
+
+    # Execute all tasks concurrently
+    results = []
+    for task in download_tasks:
+        try:
+            result = await task
+            results.append(result)
+        except asyncio.TimeoutError:
+            # If there's a timeout, append None to results (or any sentinel value you prefer)
+            results.append(None)
+
+    for result, app in zip(results, app_list):
+        if result is None:
+            archived_apps.append(app)
+
+    return archived_apps
 
 
 def get_archive(app_list: list):
 	if len(app_list) > 0:
-		for i, app in enumerate(APPLICATION_DOWNLOAD_LIST):
+		for i, app in enumerate(constants.APPLICATION_DOWNLOAD_LIST):
 			for selected in app_list:
 				if selected in app.display:
 					# print(selected)
-					app = APPLICATION_DOWNLOAD_LIST[i]
+					app = constants.APPLICATION_DOWNLOAD_LIST[i]
 
-					if i != len(APPLICATION_DOWNLOAD_LIST) - 1:
+					if i != len(constants.APPLICATION_DOWNLOAD_LIST) - 1:
 
 						# if app.link == "Archive":
 						print(f"DOWNLOADING: {app.display}")
-						download_from_archive(app.name)
+						download_from_archive(app.name, True)

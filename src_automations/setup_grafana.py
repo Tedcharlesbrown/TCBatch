@@ -9,6 +9,7 @@ import zipfile
 import time
 
 from constants import *
+import constants
 from questions import *
 from src_software.application_list import *
 from src_software.download_software import download_from_archive
@@ -16,7 +17,6 @@ from src_software.install_software import install_msi
 from src_software.install_software import install_exe
 
 path_to_grafana_setup = os.path.join(UTILITY_FOLDER_PATH,"GrafanaSetup")
-path_to_grafana_zip = os.path.join(UTILITY_FOLDER_PATH,"GrafanaSetup.zip")
 
 path_to_grafana_addon = r"C:\Program Files\GrafanaLabs\grafana\data"
 path_to_prtg_zip = os.path.join(path_to_grafana_setup,"jasonlashua-prtg-datasource.zip")
@@ -32,75 +32,76 @@ path_ohm_graphite = os.path.join(path_to_grafana_setup,"OhmGraphite.exe")
 TASK_TRIGGER_AT_LOGON = 5
 
 def check_and_download_grafana():
-
-		if os.path.exists(path_to_grafana_setup):
-				# print("UNZIP EXISTS")
-				pass
-		elif os.path.exists(path_to_grafana_zip):
-				print("UNZIPPING GRAFANA SETUP")
-				with zipfile.ZipFile(path_to_grafana_zip, 'r') as zip_ref:
-						zip_ref.extractall(UTILITY_FOLDER_PATH)
-				os.remove(path_to_grafana_zip)
-				check_and_download_grafana()
-		else:
-				print("GRAFANA SETUP NOT FOUND")
-				download_from_archive("Grafana")
-				check_and_download_grafana()
+	path_to_grafana_zip = os.path.join(constants.DOWNLOAD_FOLDER_PATH,"GrafanaSetup.zip")
+	if os.path.exists(path_to_grafana_setup):
+			# print("UNZIP EXISTS")
+			pass
+	elif os.path.exists(path_to_grafana_zip):
+			print("UNZIPPING GRAFANA SETUP")
+			with zipfile.ZipFile(path_to_grafana_zip, 'r') as zip_ref:
+					# zip_ref.extractall(constants.DOWNLOAD_FOLDER_PATH)
+					zip_ref.extractall(UTILITY_FOLDER_PATH)
+			# os.remove(path_to_grafana_zip)
+			check_and_download_grafana()
+	else:
+			print("GRAFANA SETUP NOT FOUND")
+			download_from_archive("Grafana",True)
+			check_and_download_grafana()
 
 def install_grafana_host(target_names: list, target_ips: list):
-		edit_prometheus_yml(target_names, target_ips)
-		# ---------------------------------- GRAFANA --------------------------------- # #3000
-		try:
-			install_msi(path_grafana_msi,"")
+	edit_prometheus_yml(target_names, target_ips)
+	# ---------------------------------- GRAFANA --------------------------------- # #3000
+	try:
+		install_msi(path_grafana_msi,"")
 
-			if os.path.exists(path_to_grafana_addon):
-				print("PATH EXISTS")
-				try:
-					with zipfile.ZipFile(path_to_prtg_zip, 'r') as zip_ref:
-						path = f'{path_to_grafana_addon}/plugins'
-						print(path)
-						zip_ref.extractall(path)
-				except Exception as e:
-					# print(e)
-					print("COULD NOT UNZIP PRTG PLUGIN")
-			else:
-				print("PATH DOES NOT EXIST")
-
+		if os.path.exists(path_to_grafana_addon):
+			print("PATH EXISTS")
 			try:
-				win32serviceutil.StopService("Grafana")
-				time.sleep(3)  # wait a few seconds to ensure the service stops
-				win32serviceutil.StartService("Grafana")
-			except:
-				print("COULD NOT RESTART GRAFANA SERVICE")
+				with zipfile.ZipFile(path_to_prtg_zip, 'r') as zip_ref:
+					path = f'{path_to_grafana_addon}/plugins'
+					print(path)
+					zip_ref.extractall(path)
+			except Exception as e:
+				# print(e)
+				print("COULD NOT UNZIP PRTG PLUGIN")
+		else:
+			print("PATH DOES NOT EXIST")
 
-			print("INSTALLED GRAFANA, localhost:3000")
+		try:
+			win32serviceutil.StopService("Grafana")
+			time.sleep(3)  # wait a few seconds to ensure the service stops
+			win32serviceutil.StartService("Grafana")
 		except:
-			print("COULD NOT INSTALL GRAFANA")
-		
-		input()
+			print("COULD NOT RESTART GRAFANA SERVICE")
 
-		# -------------------------------- PROMETHEUS -------------------------------- # #9090
-		try:
-			create_task(path_prometheus_exe,path_to_grafana_setup)
-		except Exception as e:
-			# print(e)
-			print("COULD NOT SCHEDULE PROMETHEUS AT LOGON")
-		try:
-			os.chdir(path_to_grafana_setup) #UNTESTED WITH NORMAL MSI (NON WINDOWS EXPORTER)
-			subprocess.Popen([path_prometheus_exe, "--config.file",path_prometheus_yml],creationflags=subprocess.CREATE_NEW_CONSOLE)
-			print("INSTALLED PROMETHEUS, localhost:9090")
+		print("INSTALLED GRAFANA, localhost:3000")
+	except:
+		print("COULD NOT INSTALL GRAFANA")
+	
+	input()
 
-		except Exception as e:
-			# print(e)
-			print("COULD NOT INSTALL PROMETEHUS")
+	# -------------------------------- PROMETHEUS -------------------------------- # #9090
+	try:
+		create_task(path_prometheus_exe,path_to_grafana_setup)
+	except Exception as e:
+		# print(e)
+		print("COULD NOT SCHEDULE PROMETHEUS AT LOGON")
+	try:
+		os.chdir(path_to_grafana_setup) #UNTESTED WITH NORMAL MSI (NON WINDOWS EXPORTER)
+		subprocess.Popen([path_prometheus_exe, "--config.file",path_prometheus_yml],creationflags=subprocess.CREATE_NEW_CONSOLE)
+		print("INSTALLED PROMETHEUS, localhost:9090")
 
-		# ----------------------------------- PRTG ----------------------------------- #
-		try:
-			if questionary.confirm(f"INSTALL PRTG?",qmark="",style=custom_style).ask():
-				install_exe(path_prtg_exe)
-				print("INSTALLED PRTG, localhost:80")
-		except:
-			print("COULD NOT INSTALL PRTG")
+	except Exception as e:
+		# print(e)
+		print("COULD NOT INSTALL PROMETEHUS")
+
+	# ----------------------------------- PRTG ----------------------------------- #
+	try:
+		if questionary.confirm(f"INSTALL PRTG?",qmark="",style=custom_style).ask():
+			install_exe(path_prtg_exe)
+			print("INSTALLED PRTG, localhost:80")
+	except:
+		print("COULD NOT INSTALL PRTG")
 
 def create_task(path_to_executable,directory_path):
 	computer_name = ""  # leave blank for local machine
