@@ -3,6 +3,8 @@ import os
 import time
 import subprocess
 import argparse
+import sys
+import shutil
 
 import pyuac
 
@@ -48,6 +50,19 @@ def utility_folder_init():
 				save_settings()
 
 	print(f"CURRENT DOWNLOAD FOLDER {constants.DOWNLOAD_FOLDER_PATH}")
+
+	# ----------------- create a copy of the exe for command line prompts ---------------- #
+	try:
+		if getattr(sys, 'frozen', False):
+			# Copy the .exe file to UTILITY_FOLDER_PATH
+			current_exe_path = sys.executable  # Path of the running .exe file
+			destination_path = os.path.join(UTILITY_FOLDER_PATH, os.path.basename(current_exe_path))
+			
+			# Copy the file only if it doesn't already exist in the destination
+			if not os.path.exists(destination_path):
+				shutil.copy(current_exe_path, destination_path)
+	except:
+		pass
 
 # ---------------------------------------------------------------------------- #
 #                                   MAIN MENU                                  #
