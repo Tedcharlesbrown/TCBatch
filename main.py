@@ -104,7 +104,9 @@ def handle_starting_arguments():
 
 	parser.add_argument('-ip-reset', action='store_true', help='resets all ip addresses sequentially starting at 192.168.8.100 - requires admin')
 	
-	args = parser.parse_args()
+
+	args, unknown = parser.parse_known_args()
+	# args = parser.parse_args()
 
 	if args.hello:
 		print("world.")
