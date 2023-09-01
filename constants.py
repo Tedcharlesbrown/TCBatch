@@ -4,7 +4,7 @@ import os
 import json
 
 APP_NAME = "TCB - Quick Setup"
-APP_VERSION = "v1.5.1"
+APP_VERSION = "v1.5.2"
 DIVIDER = "----------"
 
 PATH_THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
