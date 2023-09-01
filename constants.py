@@ -4,7 +4,7 @@ import winshell
 import os
 
 APP_NAME = "TCB - Quick Setup"
-APP_VERSION = "v1.4.2"
+APP_VERSION = "v1.5.1"
 DIVIDER = "----------"
 
 PATH_THIS_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
