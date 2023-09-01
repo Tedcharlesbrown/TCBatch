@@ -12,7 +12,8 @@ from src_software.install_software import install_msi
 def menu_custom_automations():
 	choices = [
 		"Setup Grafana and Prometheus",		#0
-		"Setup VNC Server"]		#1					
+		"Setup VNC Server"					#1	
+		]				
 	choices.append("[return]")
 	cancel = choices[-1]
 

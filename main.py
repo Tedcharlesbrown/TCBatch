@@ -2,6 +2,7 @@ import os.path
 import os
 import time
 import subprocess
+import argparse
 
 import pyuac
 
@@ -12,6 +13,7 @@ from constants import *
 
 from src_computer_name.menu_computer_name import menu_change_computer_name
 from src_network.menu_network import menu_change_network
+from src_network.change_ip import reset_network_adapters
 from src_software.menu_software import menu_manage_software
 from src_optimize_windows.menu_optimize_windows import menu_optimize_windows
 from src_restart.menu_restart import menu_restart_computer
@@ -95,6 +97,29 @@ def menu_startup_symlink():
 	# print_return()
 	menu_manage_windows()
 
+def handle_starting_arguments():
+	parser = argparse.ArgumentParser(description=f'TCBatch {APP_VERSION}')
+	parser.add_argument('-hello', action='store_true', help='returns "world" for testing')
+	parser.add_argument('-v', action='store_true', help='returns version')
+
+	parser.add_argument('-ip-reset', action='store_true', help='resets all ip addresses sequentially starting at 192.168.8.100 - requires admin')
+	
+	args = parser.parse_args()
+
+	if args.hello:
+		print("world.")
+		return False
+	
+	if args.v:
+		print(APP_VERSION)
+		return False
+
+	if args.ip_reset:
+		reset_network_adapters()
+		return False
+	
+	return True
+
 
 # ---------------------------------------------------------------------------- #
 #                                     MAIN                                     #
@@ -106,10 +131,11 @@ def main():
 
 
 if __name__ == "__main__":
-	if not pyuac.isUserAdmin():
-		print("RE-LAUNCHING AS ADMIN!")
-		time.sleep(1)
-		pyuac.runAsAdmin()
-	else:        
-		main()  # Already an admin here.
+	if handle_starting_arguments(): 
+		if not pyuac.isUserAdmin():
+			print("RE-LAUNCHING AS ADMIN!")
+			time.sleep(1)
+			pyuac.runAsAdmin()
+		else:        
+			main()  # Already an admin here.
 

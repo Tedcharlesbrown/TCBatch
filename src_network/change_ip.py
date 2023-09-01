@@ -1,5 +1,6 @@
 import subprocess
 from constants import *
+from questions import print_error
 
 
 def list_network_adapters(use_powershell) -> list:
@@ -189,8 +190,8 @@ def set_network_adapter(interface: str, addresses: list, primary_dns, secondary_
 
 	elif len(addresses) >= 3:
 		dns_clear = f"Get-NetAdapterBinding -ComponentID 'ms_tcpip6' -InterfaceAlias '{interface}' | " \
-             "where-object {$_.DisplayName -eq 'Internet Protocol Version 4 (TCP/IPv4)'} | " \
-             "Set-DnsClientServerAddress -ResetServerAddresses"
+			 "where-object {$_.DisplayName -eq 'Internet Protocol Version 4 (TCP/IPv4)'} | " \
+			 "Set-DnsClientServerAddress -ResetServerAddresses"
 		
 		subprocess.run(["powershell", "-Command", dns_clear])
 		
@@ -202,3 +203,30 @@ def set_network_adapter(interface: str, addresses: list, primary_dns, secondary_
 		
 	subprocess.call(["powershell.exe", cmd])
 	
+
+def reset_network_adapters():
+	print_error("RESETTING IP ADDRESSES STARTING AT 192.168.8.100")
+	# Get the list of network adapters using the non-PowerShell version
+	adapters = list_network_adapters(False)
+	
+	# Initialize the IP address
+	ip_base = "192.168.8."
+	ip_counter = 100
+	
+	# Initialize DNS servers
+	primary_dns = "1.1.1.1"
+	secondary_dns = "8.8.8.8"
+	
+	# Loop through each adapter and set its IP address
+	for adapter_name in adapters:
+		# Create the IP address for this adapter
+		ip_address = ip_base + str(ip_counter)
+		
+		# Create the list of addresses for this adapter
+		addresses = [ip_address, "255.255.255.0"]  # Assuming subnet mask is 255.255.255.0 for all
+		
+		# Set the network adapter
+		set_network_adapter(adapter_name, addresses, primary_dns, secondary_dns)
+		
+		# Increment the IP counter for the next adapter
+		ip_counter += 1
