@@ -226,8 +226,8 @@ def search_archive(init: bool):
 	"""connect to FTP server and compare files"""
 	console_log(flags[6],"CONNECTING TO FTP")
 	try:
-		# ftp = FTP("tedcharlesbrown.synology.me")
-		ftp = FTP("192.168.1.100")
+		ftp = FTP("tedcharlesbrown.synology.me")
+		# ftp = FTP("192.168.1.100")
 		ftp.login("_FTP_", "tedcharlesbrown_ftp")
 		console_log(flags[8],"FTP CONNECTION SUCCESS")
 
@@ -305,6 +305,3 @@ for item in json_data:
 
 apps = asyncio.run(get_download(download_list))
 search_archive(False)
-
-
-                                                                                  
