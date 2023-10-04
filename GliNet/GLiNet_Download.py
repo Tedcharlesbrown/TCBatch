@@ -178,7 +178,7 @@ async def get_download(download_list: list):
     file_limit = 0
 
     for i, app in enumerate(download_list):
-        if file_limit < 10:
+        if file_limit < 1000:
             if app.link == "Archive":
                 archived_apps.append(app)
             else:
@@ -248,7 +248,7 @@ def search_archive(init: bool):
 	else:
 		for file in files_in_archive:
 			if file != "__hidden__" and file != application_list:
-				if file_limit < 10:
+				if file_limit < 10000:
 					if not asyncio.run(check_already_downloaded(file)):
 						console_log(flags[11],f"{file.upper()} NOT IN GLINET")
 						download_from_archive(ftp,file)
